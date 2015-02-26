@@ -1,3 +1,7 @@
+<?php
+$env_var = getenv('OPENSHIFT_ENV_VAR');
+echo $env_var;
+?>
 <!doctype html>
 <html lang="en">
 <head>

@@ -28,7 +28,7 @@ CREATE TABLE IF NOT EXISTS `kins` (
   `last_name` VARCHAR(50) NOT NULL,
   `phone_number` VARCHAR(25) NOT NULL,
   `email_address` VARCHAR(255) NOT NULL,
-  `address`
+  `address` TEXT NOT NULL,
   `created_time` DATETIME NOT NULL,
   `modified_time` DATETIME NOT NULL,
   `active_status` TINYINT(1) UNSIGNED NOT NULL DEFAULT 1,

@@ -2,6 +2,7 @@
 $env_var = getenv('OPENSHIFT_ENV_VAR');
 echo $env_var;
 echo "k";
+echo $OPENSHIFT_DATA_DIR;
 ?>
 <!doctype html>
 <html lang="en">

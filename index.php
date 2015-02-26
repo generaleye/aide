@@ -1,6 +1,7 @@
 <?php
 $env_var = getenv('OPENSHIFT_ENV_VAR');
 echo $env_var;
+echo "k";
 ?>
 <!doctype html>
 <html lang="en">

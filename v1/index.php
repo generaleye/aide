@@ -141,26 +141,6 @@ $app->post('/selectprovider/:id', 'authenticate', 'selectProvider');
 $app->post('/review/:id', 'authenticate', 'review');
 
 
-$app->post('/profile/changepass', 'authenticate', 'changePass');
-$app->get('/notifications', 'authenticate', 'getNotifications');
-$app->get('/notifications/:id/seen', 'authenticate', 'markNotifications');
-$app->get('/profile/:id/follow', 'authenticate', 'followUser');
-$app->get('/categories/:id/subscribe', 'authenticate', 'subscribeCategory');
-$app->post('/posts', 'authenticate', 'addPost');
-$app->get('/posts/:id/delete', 'authenticate', 'deletePostById');
-$app->get('/posts/:id', 'authenticate', 'getPostById');
-$app->get('/posts', 'authenticate', 'getPosts');
-$app->get('/categories/posts', 'authenticate', 'getSubCatPosts');
-$app->get('/categories/', 'authenticate', 'getAllCategories');
-$app->get('/categories/:id', 'authenticate', 'getCategoryById');
-$app->get('/posts/:id/like', 'authenticate', 'likePostById');
-$app->post('/posts/:id/comment', 'authenticate', 'postCommentById');
-$app->get('/posts/:id/comment', 'authenticate', 'getCommentById');
-
-$app->get('/allposts/', 'authenticate', 'getAllPosts');
-$app->get('/categories/:id/posts', 'authenticate', 'getCategoryPosts');
-
-
 $app->run();
 
 function getProfile() {

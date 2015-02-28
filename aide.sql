@@ -32,18 +32,20 @@ CREATE TABLE IF NOT EXISTS `kins` (
   `created_time` DATETIME NOT NULL,
   `modified_time` DATETIME NOT NULL,
   `active_status` TINYINT(1) UNSIGNED NOT NULL DEFAULT 1,
-  PRIMARY KEY (`kin_id`)
+  PRIMARY KEY (`kin_id`),
+  CONSTRAINT `fk_kins_user_id` FOREIGN KEY (`user_id`) REFERENCES users(`user_id`)
+    ON UPDATE CASCADE ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
 CREATE TABLE IF NOT EXISTS `service_types` (
   `service_type_id` TINYINT(1) UNSIGNED NOT NULL AUTO_INCREMENT,
-  `name` VARCHAR(10) NOT NULL,
+  `name` VARCHAR(15) NOT NULL,
   PRIMARY KEY (`service_type_id`)
 ) ENGINE=InnoDB;
 
 CREATE TABLE IF NOT EXISTS `service_statuses` (
   `service_status_id` TINYINT(1) UNSIGNED NOT NULL AUTO_INCREMENT,
-  `name` VARCHAR(10) NOT NULL,
+  `name` VARCHAR(15) NOT NULL,
   PRIMARY KEY (`service_status_id`)
 ) ENGINE=InnoDB;
 
@@ -87,7 +89,7 @@ CREATE TABLE IF NOT EXISTS `requests` (
   `latitude` VARCHAR(50) NOT NULL,
   `address` TEXT NOT NULL,
   `service_type_id` TINYINT(1) UNSIGNED NOT NULL,
-  `service_status_id` TINYINT(1) UNSIGNED NOT NULL,
+  `service_status_id` TINYINT(1) UNSIGNED NOT NULL DEFAULT 2,
   `created_time` DATETIME NOT NULL,
   `modified_time` DATETIME NOT NULL,
   `active_status` TINYINT(1) UNSIGNED NOT NULL DEFAULT 1,
@@ -133,6 +135,7 @@ CREATE TABLE IF NOT EXISTS `reviews` (
   `user_id` INT UNSIGNED NOT NULL,
   `provider_id` INT UNSIGNED NOT NULL,
   `rating` TINYINT(1) UNSIGNED NOT NULL DEFAULT 0,
+  `comment` TEXT NOT NULL,
   `created_time` DATETIME NOT NULL,
   `modified_time` DATETIME NOT NULL,
   `active_status` TINYINT(1) UNSIGNED NOT NULL DEFAULT 1,

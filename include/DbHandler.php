@@ -346,16 +346,33 @@ class DbHandler {
     }
 
     public function deleteKinsById($id,$userId) {
-        $sql = "UPDATE `kins` SET `active_status` = 0 WHERE `kin_id` =:id AND `user_id` = :userId";
+        $sql = "SELECT `user_id` FROM  `kins` WHERE `kin_id` =:id AND `user_id` = :userId";
         try {
             $stmt = $this->conn->prepare($sql);
             $stmt->bindParam("id", $id);
             $stmt->bindParam("userId", $userId);
             $stmt->execute();
-            return TRUE;
+            $kinUserId = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if ($kinUserId==$userId) {
+                $sql = "UPDATE `kins` SET `active_status` = 0 WHERE `kin_id` =:id AND `user_id` = :userId";
+                try {
+                    $stmt = $this->conn->prepare($sql);
+                    $stmt->bindParam("id", $id);
+                    $stmt->bindParam("userId", $userId);
+                    $stmt->execute();
+                    return TRUE;
+                } catch(PDOException $e) {
+                    echo '{"error":{"text":'. $e->getMessage() .'}}';
+                }
+            } else {
+                return FALSE;
+            }
+
         } catch(PDOException $e) {
             echo '{"error":{"text":'. $e->getMessage() .'}}';
         }
+
     }
 
     public function sendTextToKins($userId,$device_id,$longitude,$latitude,$address,$type) {
@@ -433,14 +450,14 @@ class DbHandler {
                 }
                 $lonLatArr = $latLon->getResult($radius);
 
-                $sql = 'SELECT `provider_id`, `name`, `email_address`, `longitude`, `latitude`, `address` FROM `providers` WHERE `latitude` BETWEEN :minLat AND :maxLat AND longitude BETWEEN :minLon AND :maxLon AND `service_type_id` = :type';
+                $sql = 'SELECT `provider_id`, `name`, `email_address`, `longitude`, `latitude`, `address` FROM `providers` WHERE `service_type_id` = :type AND `latitude` BETWEEN :minLat AND :maxLat AND longitude BETWEEN :minLon AND :maxLon AND `active_status` = 1';
                 try {
                     $stmt = $this->conn->prepare($sql);
                     $stmt->bindParam("minLat", $lonLatArr['minLat']);
                     $stmt->bindParam("maxLat", $lonLatArr['maxLat']);
                     $stmt->bindParam("minLon", $lonLatArr['minLon']);
                     $stmt->bindParam("maxLon", $lonLatArr['maxLon']);
-                    $stmt->bindParam("type", $type);
+                    $stmt->bindParam("type", intval($type));
                     $stmt->execute();
                     $providersArr = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     //$postsArr = objectToArray($posts);
@@ -460,11 +477,11 @@ class DbHandler {
         } else {
             if ($address!="") {
                 $address = "%$address%";
-                $sql = 'SELECT `provider_id`, `name`, `email_address`, `longitude`, `latitude`, `address` FROM `providers` WHERE `address` LIKE :val OR `name` LIKE :val AND `service_type_id` = :type';
+                $sql = 'SELECT `provider_id`, `name`, `email_address`, `longitude`, `latitude`, `address` FROM `providers` WHERE `service_type_id` = :type AND `address` LIKE :val OR `name` LIKE :val AND `active_status` = 1';
                 try {
                     $stmt = $this->conn->prepare($sql);
                     $stmt->bindParam("val", $address);
-                    $stmt->bindParam("type", $type);
+                    $stmt->bindParam("type", intval($type));
                     $stmt->execute();
                     $providersArr = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     //$postsArr = objectToArray($posts);

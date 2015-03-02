@@ -186,7 +186,7 @@ function editProfile() {
     $response = array();
     if ($update == TRUE) {
         $response["error"] = FALSE;
-        $response['message'] = "Your profile has been Updated";
+        $response['message'] = "Your Profile has been Updated";
     } else {
         // unknown error occurred
         $response['error'] = TRUE;
@@ -283,6 +283,9 @@ function deleteKins($id) {
     if ($del == TRUE) {
         $response["error"] = FALSE;
         $response['message'] = "Next of Kin has been deleted";
+    } elseif ($del == FALSE) {
+        $response['error'] = TRUE;
+        $response['message'] = "You cannot delete that";
     } else {
         $response['error'] = TRUE;
         $response['message'] = "An error occurred. Please try again";

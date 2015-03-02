@@ -302,7 +302,7 @@ function requestService() {
     $address = $req->params('address');
     $type = intval($req->params('type'));
     $device_id = $req->params('device_id');
-    $radius = $req->params('radius');
+//    $radius = $req->params('radius');
 
     $apikey = $app->request->params('apikey');
     $db = new DbHandler();
@@ -315,7 +315,7 @@ function requestService() {
         $returnValue = $db->sendTextToKins($userId,$device_id,$longitude,$latitude,$address,$type);
     } else {
         //Other forms of request like fire=1, theft=2, medical=3 and auto=4
-        $returnValue = $db->getProviders($userId,$device_id,$longitude,$latitude,$address,$type,$radius);
+        $returnValue = $db->getProviders($userId,$device_id,$longitude,$latitude,$address,$type);
     }
 
     if ($returnValue != NULL) {

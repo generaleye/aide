@@ -418,13 +418,13 @@ class DbHandler {
         return $response;
     }
 
-    public function getProviders($userId,$device_id,$longitude,$latitude,$address,$type,$radius) {
+    public function getProviders($userId,$device_id,$longitude,$latitude,$address,$type) {
         require_once 'LatLong.php';
         $response = array();
         if ($longitude!="" && $latitude!="") {
             $latLon = new LatLong($latitude,$longitude);
             $leng = 0;
-            //$radius = 10;
+            $radius = 10;
             while ($leng == 0) {
                 if ($radius >= 45) {
                     $response['error'] = TRUE;

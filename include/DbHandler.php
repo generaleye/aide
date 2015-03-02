@@ -7,12 +7,15 @@
 class DbHandler {
 
     private $conn;
+    private $sendgrid;
 
     function __construct() {
         require_once dirname(__FILE__) . '/DbConnect.php';
         // opening db connection
         $db = new DbConnect();
         $this->conn = $db->connect();
+        require_once ('../libs/sendgrid-php/sendgrid-php.php');
+        $this->sendgrid = new SendGrid(SENDGRID_USERNAME, SENDGRID_PASSWORD);
     }
 
     /* ------------- `users` table method ------------------ */
@@ -49,6 +52,7 @@ class DbHandler {
                 // Check for successful insertion
                 if ($result) {
                     // User successfully inserted
+                    $this->sendRegistrationEmail($email);
                     return REGISTRATION_SUCCESSFUL;
                 } else {
                     // Failed to create user
@@ -211,6 +215,40 @@ class DbHandler {
      */
     private function generateApiKey() {
         return md5(time().uniqid(rand(), TRUE));
+    }
+
+    /**
+     * Get the email of users using their id
+     * @param $id
+     */
+    public function getUserEmailById($id) {
+        $sql = "SELECT `email_address` FROM `users` WHERE `user_id` = :id";
+        try {
+            $stmt = $this->conn->prepare($sql);
+            $stmt->bindParam("id", $id);
+            $stmt->execute();
+            $user = $stmt->fetch(PDO::FETCH_ASSOC);
+            return $user['email_address'];
+        } catch(PDOException $e) {
+            echo '{"error":{"text":'. $e->getMessage() .'}}';
+        }
+    }
+
+    /**
+     * Get the email of providers using their id
+     * @param $id
+     */
+    public function getProviderEmailById($id) {
+        $sql = "SELECT `email_address` FROM `providers` WHERE `provider_id` = :id";
+        try {
+            $stmt = $this->conn->prepare($sql);
+            $stmt->bindParam("id", $id);
+            $stmt->execute();
+            $provider = $stmt->fetch(PDO::FETCH_ASSOC);
+            return $provider['email_address'];
+        } catch(PDOException $e) {
+            echo '{"error":{"text":'. $e->getMessage() .'}}';
+        }
     }
 
 
@@ -478,6 +516,7 @@ class DbHandler {
                 $stmt->execute();
                 $this->conn->commit();
 
+                $this->sendEmergencyEmail($this->getProviderEmailById($providerId),$this->getUserEmailById($userId));
                 $response['error'] = FALSE;
                 $response['message'] = "Your Request has been sent";
                 return $response;
@@ -507,6 +546,51 @@ class DbHandler {
         } catch(PDOException $e) {
             echo '{"error":{"text":'. $e->getMessage() .'}}';
         }
+    }
+
+    /**
+     * Send an email after Registration using SendGrid's api
+     * @param $recipient
+     */
+
+    public function sendRegistrationEmail($recipient) {
+        $emails = new SendGrid\Email();
+        $emails
+            ->addTo($recipient)
+            ->setBcc(SENDGRID_CC_EMAIL)
+            ->setFrom(SENDGRID_FROM_EMAIL)
+            ->setFromName(SENDGRID_FROM_NAME)
+            ->setSubject('Successful Registration')
+            ->setHtml('<h1>Welcome to Aide</h1><br />
+                <p>Thanks for registering for our service. Kindly update your profile as soon as possible</p>
+                <p><strong>Thank You!</strong></p><br />')
+        ;
+        //$response = $this->sendgrid->send($email);
+        $this->sendgrid->send($emails);
+        //var_dump($response);
+    }
+
+    /**
+     * Send emails to Service Providers in case of emergency
+     * @param $provider
+     * @param $user
+     */
+
+    public function sendEmergencyEmail($provider, $user) {
+        $emails = new SendGrid\Email();
+        $emails
+            ->addTo($provider)
+            ->setBcc(SENDGRID_CC_EMAIL)
+            ->setFrom(SENDGRID_FROM_EMAIL)
+            ->setFromName(SENDGRID_FROM_NAME)
+            ->setSubject('Emergency Alert')
+            ->setHtml('<h1>Emergency Request</h1><br />
+                <p>Hello,</p><br /><p>A user registered with the email: "'.$user.'" has requested for your assistance.</p>
+                <p>Please follow this <a href="aide-generaleye.rhcloud.com">link</a> to your profile to accept or decline the request.</p>
+                <p><strong>Thank You!</strong></p><br />')
+        ;
+        //$response = $this->sendgrid->send($email);
+        $this->sendgrid->send($emails);
     }
 
 }

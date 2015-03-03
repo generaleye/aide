@@ -25,4 +25,10 @@ INSERT INTO `service_types` (`service_type_id`, `name`) VALUES
   (4, 'Auto-Repair'),
   (5, 'SOS');
 
+INSERT INTO `notification_types` (`notification_type_id`, `name`) VALUES
+(1, 'Approve'),
+(2, 'Decline'),
+(3, 'Request'),
+(4, 'Chat');
+
 SET FOREIGN_KEY_CHECKS= 1;

@@ -1,7 +1,7 @@
 <?php
 ini_set("display_errors",1);
-require_once '../include/DbHandler.php';
-require_once '../include/PassHash.php';
+require_once '../../include/DbHandler.php';
+require_once '../../include/PassHash.php';
 require '../libs/Slim/Slim.php';
 
 \Slim\Slim::registerAutoloader();

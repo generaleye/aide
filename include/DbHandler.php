@@ -11,11 +11,13 @@ class DbHandler {
 
     function __construct() {
         require_once dirname(__FILE__) . '/DbConnect.php';
+        require_once ('../libs/sendgrid-php/sendgrid-php.php');
+        require_once dirname(__FILE__) . '/SendGridEmail.php';
         // opening db connection
         $db = new DbConnect();
         $this->conn = $db->connect();
-        require_once ('../libs/sendgrid-php/sendgrid-php.php');
-        $this->sendgrid = new SendGrid(SENDGRID_USERNAME, SENDGRID_PASSWORD);
+//        require_once ('../libs/sendgrid-php/sendgrid-php.php');
+//        $this->sendgrid = new SendGrid(SENDGRID_USERNAME, SENDGRID_PASSWORD);
     }
 
     /* ------------- `users` table method ------------------ */
@@ -24,7 +26,8 @@ class DbHandler {
      * Creating new user
      */
     public function createUser($email, $password) {
-        require_once 'PassHash.php';
+        require_once ('PassHash.php');
+        //require_once ('SendGridEmail.php');
         //$response = array();
 
         // Check if user already exists in db
@@ -52,7 +55,9 @@ class DbHandler {
                 // Check for successful insertion
                 if ($result) {
                     // User successfully inserted
-                    $this->sendRegistrationEmail($email);
+                    $sendEmail = new SendGridEmail();
+                    $sendEmail->sendRegistrationEmail($email);
+                    //$this->sendRegistrationEmail($email);
                     return REGISTRATION_SUCCESSFUL;
                 } else {
                     // Failed to create user
@@ -436,7 +441,7 @@ class DbHandler {
     }
 
     public function getProviders($userId,$device_id,$longitude,$latitude,$address,$type) {
-        require_once 'LatLong.php';
+        require_once ('LatLong.php');
         $response = array();
         if ($longitude!="" && $latitude!="") {
             $latLon = new LatLong($latitude,$longitude);
@@ -507,6 +512,7 @@ class DbHandler {
     }
 
     public function selectProvider($userId,$device_id,$providerId,$longitude,$latitude,$address,$type) {
+        //require_once ('SendGridEmail.php');
         $sql = "INSERT INTO `requests` (`user_id`, `device_id`, `longitude`, `latitude`, `address`, `service_type_id`, `created_time`) VALUES (:userId, :device_id, :longitude, :latitude, :address, :service_type, NOW())";
         try {
             $this->conn->beginTransaction();
@@ -533,7 +539,10 @@ class DbHandler {
                 $stmt->execute();
                 $this->conn->commit();
 
-                $this->sendEmergencyEmail($this->getProviderEmailById($providerId),$this->getUserEmailById($userId));
+                $this->sendNotification($providerId,$userId, $requestId, 3);
+                $sendEmail = new SendGridEmail();
+                $sendEmail->sendEmergencyEmail($this->getProviderEmailById($providerId),$this->getUserEmailById($userId));
+                //$this->sendEmergencyEmail($this->getProviderEmailById($providerId),$this->getUserEmailById($userId));
                 $response['error'] = FALSE;
                 $response['message'] = "Your Request has been sent";
                 return $response;
@@ -565,49 +574,20 @@ class DbHandler {
         }
     }
 
-    /**
-     * Send an email after Registration using SendGrid's api
-     * @param $recipient
-     */
 
-    public function sendRegistrationEmail($recipient) {
-        $emails = new SendGrid\Email();
-        $emails
-            ->addTo($recipient)
-            ->setBcc(SENDGRID_CC_EMAIL)
-            ->setFrom(SENDGRID_FROM_EMAIL)
-            ->setFromName(SENDGRID_FROM_NAME)
-            ->setSubject('Successful Registration')
-            ->setHtml('<h1>Welcome to Aide</h1><br />
-                <p>Thanks for registering for our service. Kindly update your profile as soon as possible</p>
-                <p><strong>Thank You!</strong></p><br />')
-        ;
-        //$response = $this->sendgrid->send($email);
-        $this->sendgrid->send($emails);
-        //var_dump($response);
-    }
-
-    /**
-     * Send emails to Service Providers in case of emergency
-     * @param $provider
-     * @param $user
-     */
-
-    public function sendEmergencyEmail($provider, $user) {
-        $emails = new SendGrid\Email();
-        $emails
-            ->addTo($provider)
-            ->setBcc(SENDGRID_CC_EMAIL)
-            ->setFrom(SENDGRID_FROM_EMAIL)
-            ->setFromName(SENDGRID_FROM_NAME)
-            ->setSubject('Emergency Alert')
-            ->setHtml('<h1>Emergency Request</h1><br />
-                <p>Hello,</p><br /><p>A user registered with the email: "'.$user.'" has requested for your assistance.</p>
-                <p>Please follow this <a href="aide-generaleye.rhcloud.com">link</a> to your profile to accept or decline the request.</p>
-                <p><strong>Thank You!</strong></p><br />')
-        ;
-        //$response = $this->sendgrid->send($email);
-        $this->sendgrid->send($emails);
+    public function sendNotification($owner, $subject, $object, $type) {
+        $sql = "INSERT INTO `notifications` (`own_id`, `sub_id`, `obj_id`, `notification_type`, `created_time`) VALUES (:owner, :subject, :object, :n_type, NOW())";
+        try {
+            $stmt = $this->conn->prepare($sql);
+            $stmt->bindParam("owner", $owner);
+            $stmt->bindParam("subject", $subject);
+            $stmt->bindParam("object", $object);
+            $stmt->bindParam("n_type", intval($type));
+            $stmt->execute();
+            return TRUE;
+        } catch(PDOException $e) {
+            echo '{"error":{"text":'. $e->getMessage() .'}}';
+        }
     }
 
 }

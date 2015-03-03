@@ -51,13 +51,13 @@ CREATE TABLE IF NOT EXISTS `service_statuses` (
 
 CREATE TABLE IF NOT EXISTS `request_statuses` (
   `request_status_id` TINYINT(1) UNSIGNED NOT NULL AUTO_INCREMENT,
-  `name` VARCHAR(10) NOT NULL,
+  `name` VARCHAR(15) NOT NULL,
   PRIMARY KEY (`request_status_id`)
 ) ENGINE=InnoDB;
 
 CREATE TABLE IF NOT EXISTS `notification_types` (
   `notification_type_id` TINYINT(1) UNSIGNED NOT NULL AUTO_INCREMENT,
-  `name` VARCHAR(10) NOT NULL,
+  `name` VARCHAR(15) NOT NULL,
   PRIMARY KEY (`notification_type_id`)
 ) ENGINE=InnoDB;
 
@@ -150,6 +150,7 @@ CREATE TABLE IF NOT EXISTS `notifications` (
   `notification_id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   `own_id` INT UNSIGNED NOT NULL,
   `sub_id` INT UNSIGNED NOT NULL,
+  `obj_id` INT UNSIGNED NOT NULL,
   `notification_type_id` TINYINT(1) UNSIGNED NOT NULL DEFAULT 1,
   `created_time` DATETIME NOT NULL,
   `active_status` TINYINT(1) UNSIGNED NOT NULL DEFAULT 1,
@@ -157,6 +158,8 @@ CREATE TABLE IF NOT EXISTS `notifications` (
   CONSTRAINT `fk_notifications_own_id` FOREIGN KEY (`own_id`) REFERENCES users(`user_id`)
     ON UPDATE CASCADE ON DELETE CASCADE,
   CONSTRAINT `fk_notifications_sub_id` FOREIGN KEY (`sub_id`) REFERENCES users(`user_id`)
+    ON UPDATE CASCADE ON DELETE CASCADE,
+  CONSTRAINT `fk_notifications_obj_id` FOREIGN KEY (`obj_id`) REFERENCES requests(`request_id`)
     ON UPDATE CASCADE ON DELETE CASCADE,
   CONSTRAINT `fk_notification_type_id` FOREIGN KEY (`notification_type_id`) REFERENCES notification_types(`notification_type_id`)
     ON UPDATE CASCADE ON DELETE CASCADE

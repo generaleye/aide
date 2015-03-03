@@ -1,7 +1,4 @@
 <?php
-//require_once ('Config.php');
-//require_once ('../libs/sendgrid-php/sendgrid-php.php');
-//require_once ('..//libs/sendgrid-php/sendgrid-php.php');
 
 class SendGridEmail {
 

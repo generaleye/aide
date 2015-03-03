@@ -34,28 +34,6 @@
     <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
     <![endif]-->
 
-    <style>
-        #map-canvas {
-            height: 100%;
-            margin: 0px;
-            padding: 0px
-        }
-    </style>
-    <script src="https://maps.googleapis.com/maps/api/js?v=3.exp"></script>
-    <script>
-        var map;
-        function initialize() {
-            var mapOptions = {
-                zoom: 8,
-                center: new google.maps.LatLng(-34.397, 150.644)
-            };
-            map = new google.maps.Map(document.getElementById('map-canvas'),
-                mapOptions);
-        }
-
-        google.maps.event.addDomListener(window, 'load', initialize);
-
-    </script>
 </head>
 
 <body>
@@ -77,10 +55,10 @@
         <div class="collapse navbar-collapse pull-right" id="bs-example-navbar-collapse-1">
             <ul class="nav navbar-nav">
                 <li>
-                    <a href="#">About</a>
+                    <a href="provider.php">Dashboard</a>
                 </li>
                 <li>
-                    <a href="#">Services</a>
+                    <a href="#">Edit Profile</a>
                 </li>
                 <li>
                     <a href="./signup.php">Logout</a>
@@ -97,7 +75,7 @@
 
     <div class="row">
         <div class="col-xs-12">
-            <div id="map-canvas">hello</div>
+
         </div>
     </div>
 </div>

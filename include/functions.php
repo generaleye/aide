@@ -8,7 +8,7 @@ function register($name,$email,$password,$phone,$service,$address,$latitude,$lon
         if ($create == REGISTRATION_SUCCESSFUL) {
             $_SESSION['authorized'] = 1;
             $_SESSION['privilege'] = "provider";
-            header('Location: dashboard.php');
+            header('Location: provider.php');
             exit();
         } elseif ($create == EMAIL_ALREADY_EXISTS) {
             $_SESSION['error'] = 'Email Already Exists';
@@ -28,7 +28,7 @@ function login($email,$password,$type) {
             if ($login) {
                 $_SESSION['authorized'] = 1;
                 $_SESSION['privilege'] = "provider";
-                header('Location: dashboard.php');
+                header('Location: provider.php');
                 exit();
             } else {
                 $_SESSION['error'] = 'Incorrect Credentials. Please Try Again';

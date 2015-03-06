@@ -134,11 +134,11 @@ $app->post('/getprofile', 'authenticate', 'getProfile');
 $app->post('/editprofile', 'authenticate', 'editProfile');
 $app->post('/addkins', 'authenticate', 'addKins');
 $app->post('/getkins', 'authenticate', 'getKins');
-$app->post('/editkins/:id', 'authenticate', 'editKins');
-$app->post('/deletekins/:id', 'authenticate', 'deleteKins');
+$app->post('/editkins', 'authenticate', 'editKins');
+$app->post('/deletekins', 'authenticate', 'deleteKins');
 $app->post('/requestservice', 'authenticate', 'requestService');
-$app->post('/selectprovider/:id', 'authenticate', 'selectProvider');
-$app->post('/review/:id', 'authenticate', 'review');
+$app->post('/selectprovider', 'authenticate', 'selectProvider');
+$app->post('/review', 'authenticate', 'review');
 
 
 $app->run();
@@ -243,12 +243,11 @@ function getKins() {
     echoRespnse(200, $response);
 }
 
-function editKins($id) {
+function editKins() {
     global $app;
-    //verifyRequiredParams(array('kin_id'));
-
+    verifyRequiredParams(array('id'));
     $req = $app->request(); // Getting parameters
-    //$kinId = $req->params('kin_id');
+    $kinId = $req->params('id');
     $fname = $req->params('fname');
     $lname = $req->params('lname');
     $phone = $req->params('phone');
@@ -259,12 +258,15 @@ function editKins($id) {
     $db = new DbHandler();
 
     $userId = $db->getUserId($apiKey);
-    $update = $db->updateKinsById($userId, $id, $fname, $lname, $phone, $email, $address);
+    $update = $db->updateKinsById($userId, $kinId, $fname, $lname, $phone, $email, $address);
     $response = array();
     if ($update == TRUE) {
         $response["error"] = FALSE;
         $response['message'] = "Update Successful";
-    } else {
+    } elseif ($update == FALSE) {
+        $response['error'] = TRUE;
+        $response['message'] = "You cannot edit that";
+    }else {
         // unknown error occurred
         $response['error'] = TRUE;
         $response['message'] = "An error occurred. Please try again";
@@ -272,14 +274,16 @@ function editKins($id) {
     echoRespnse(200, $response);
 }
 
-function deleteKins($id) {
+function deleteKins() {
     global $app;
+    verifyRequiredParams(array('id'));
     $req = $app->request(); // Getting parameters
+    $kinId = $req->params('id');
     $apikey = $req->params('apikey');
     $db = new DBHandler();
     $userId = $db->getUserId($apikey);
     $response = array();
-    $del = $db->deleteKinsById($id,$userId);
+    $del = $db->deleteKinsById($kinId,$userId);
     if ($del == TRUE) {
         $response["error"] = FALSE;
         $response['message'] = "Next of Kin has been deleted";
@@ -305,12 +309,10 @@ function requestService() {
     $address = $req->params('address');
     $type = intval($req->params('type'));
     $device_id = $req->params('device_id');
-//    $radius = $req->params('radius');
 
     $apikey = $app->request->params('apikey');
     $db = new DbHandler();
     $userId = $db->getUserId($apikey);
-    //$post_id = $db->addPost($title, $content, $author_id, $category, $visibility, $tags, $mood, $type, $anonymous, $flag, $image, $time_posted);
     $response = array();
 
     if ($type==5) {
@@ -318,7 +320,7 @@ function requestService() {
         $returnValue = $db->sendTextToKins($userId,$device_id,$longitude,$latitude,$address,$type);
     } else {
         //Other forms of request like fire=1, theft=2, medical=3 and auto=4
-        $returnValue = $db->getProviders($userId,$device_id,$longitude,$latitude,$address,$type);
+        $returnValue = $db->getProviders($longitude,$latitude,$address,$type);
     }
 
     if ($returnValue != NULL) {
@@ -331,18 +333,18 @@ function requestService() {
     echoRespnse(200, $response);
 }
 
-function selectProvider($providerId) {
+function selectProvider() {
     //global $app;
     $app = \Slim\Slim::getInstance();
-    verifyRequiredParams(array('type'));
+    verifyRequiredParams(array('id','type'));
 
     $req = $app->request(); // Getting parameters
+    $providerId = $req->params('id');
     $latitude = $req->params('latitude');
     $longitude = $req->params('longitude');
     $address = $req->params('address');
     $type = intval($req->params('type'));
     $device_id = $req->params('device_id');
-    //$radius = $req->params('radius');
 
     $apikey = $app->request->params('apikey');
     $db = new DbHandler();
@@ -360,12 +362,13 @@ function selectProvider($providerId) {
     echoRespnse(200, $response);
 }
 
-function review($providerId) {
+function review() {
     //global $app;
     $app = \Slim\Slim::getInstance();
-    //verifyRequiredParams(array('fname', 'lname', 'phone'));
+    verifyRequiredParams(array('id'));
 
     $req = $app->request(); // Getting parameters
+    $providerId = $req->params('id');
     $rating = $req->params('rating');
     $comment = $req->params('comment');
 

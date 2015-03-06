@@ -4,6 +4,9 @@
  * Author: Generaleye
  */
 
+ob_start();
+session_start();
+
 if ($_SERVER["SERVER_NAME"]=="localhost") {
     define('DB_HOST', 'localhost');
     define('DB_USERNAME', 'root');
@@ -21,6 +24,12 @@ define('SENDGRID_PASSWORD', 'sendgrid_password');
 define('SENDGRID_CC_EMAIL', 'odumuyiwaleye@gmail.com');
 define('SENDGRID_FROM_EMAIL', 'developers@aide-generaleye.rhcloud.com');
 define('SENDGRID_FROM_NAME', 'Aide Developers');
+
+define('EBULK_USERNAME', 'odumuyiwaleye@yahoo.com');
+define('EBULK_APIKEY', '084dbdea272be04f1ec62b41c37f2930ce90508d');
+define('EBULK_FROM_NAME', 'Aide Dev');
+
+define('GOOGLE_URL_KEY', 'AIzaSyDsIoSE8N4_r4t3A46s5_EYAY3NYVWpCKs');
 
 define('REGISTRATION_SUCCESSFUL', 0);
 define('REGISTRATION_FAILED', 1);

@@ -1,3 +1,12 @@
+<?php
+include_once('include/Config.php');
+include_once('include/functions.php');
+
+//if logout has been clicked run the logout function which will destroy any active sessions and redirect to the login page
+if(isset($_GET['logout'])){
+    logout();
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -34,28 +43,28 @@
         <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
     <![endif]-->
 
-    <style>
-        #map-canvas {
-            height: 100%;
-            margin: 0px;
-            padding: 0px
-        }
-    </style>
-    <script src="https://maps.googleapis.com/maps/api/js?v=3.exp"></script>
-    <script>
-        var map;
-        function initialize() {
-            var mapOptions = {
-                zoom: 8,
-                center: new google.maps.LatLng(-34.397, 150.644)
-            };
-            map = new google.maps.Map(document.getElementById('map-canvas'),
-                mapOptions);
-        }
-
-        google.maps.event.addDomListener(window, 'load', initialize);
-
-    </script>
+<!--    <style>-->
+<!--        #map-canvas {-->
+<!--            height: 100%;-->
+<!--            margin: 0px;-->
+<!--            padding: 0px-->
+<!--        }-->
+<!--    </style>-->
+<!--    <script src="https://maps.googleapis.com/maps/api/js?v=3.exp"></script>-->
+<!--    <script>-->
+<!--        var map;-->
+<!--        function initialize() {-->
+<!--            var mapOptions = {-->
+<!--                zoom: 8,-->
+<!--                center: new google.maps.LatLng(-34.397, 150.644)-->
+<!--            };-->
+<!--            map = new google.maps.Map(document.getElementById('map-canvas'),-->
+<!--                mapOptions);-->
+<!--        }-->
+<!---->
+<!--        google.maps.event.addDomListener(window, 'load', initialize);-->
+<!---->
+<!--    </script>-->
 </head>
 
 <body>
@@ -76,15 +85,23 @@
             <!-- Collect the nav links, forms, and other content for toggling -->
             <div class="collapse navbar-collapse pull-right" id="bs-example-navbar-collapse-1">
                 <ul class="nav navbar-nav">
-                    <li>
-                        <a href="#">About</a>
-                    </li>
-                    <li>
-                        <a href="#">Services</a>
-                    </li>
-                    <li>
-                        <a href="./signup.php">Register / Login</a>
-                    </li>
+                    <?php
+                    if(logged_in()) {
+                        if(isProvider()) {
+                            echo '<li><a href="provider.php">Dashboard</a></li>
+                                    <li><a href="editprovider.php">Edit Profile</a></li>
+                                    <li><a href="./index.php?logout">Logout</a></li>';
+                        }else {
+                            echo '<li><a href="user.php">Dashboard</a></li>
+                                    <li><a href="edituser.php">Edit Profile</a></li>
+                                    <li><a href="./index.php?logout">Logout</a></li>';
+                        }
+                    } else {
+                        echo '<li><a href="#">About</a></li>
+                                <li><a href="#">Services</a></li>
+                                <li><a href="signup.php">Login / Register</a></li>';
+                    }
+                    ?>
                 </ul>
             </div>
             <!-- /.navbar-collapse -->

@@ -13,6 +13,8 @@ class DbHandler {
         require_once dirname(__FILE__) . '/DbConnect.php';
         require_once ('../libs/sendgrid-php/sendgrid-php.php');
         require_once dirname(__FILE__) . '/SendGridEmail.php';
+        require_once dirname(__FILE__) . '/EbulkSmsApi.php';
+        require_once dirname(__FILE__) . '/GoogleUrlApi.php';
         // opening db connection
         $db = new DbConnect();
         $this->conn = $db->connect();
@@ -318,14 +320,7 @@ class DbHandler {
             $kinsArr  = $stmt->fetchAll(PDO::FETCH_ASSOC);
             //$postsArr = objectToArray($posts);
             $leng = count($kinsArr);
-            if($leng==0) {
-                $startId = 0;
-                $endId = 0;
-            } else {
-                $startId = $kinsArr[0]['kin_id'];
-                $endId = $kinsArr[$leng-1]['kin_id'];
-            }
-            $arr = array('start'=>$startId, 'end'=>$endId, 'count'=>$leng, 'kins'=>$kinsArr);
+            $arr = array('count'=>strval($leng), 'kins'=>$kinsArr);
             return $arr;
         } catch(PDOException $e) {
             echo '{"error":{"text":'. $e->getMessage() .'}}';
@@ -333,33 +328,48 @@ class DbHandler {
     }
 
     public function updateKinsById($userId, $kinId, $fname, $lname, $phone, $email, $address) {
-        $sql = "UPDATE `kins` SET `first_name` = :fname, `last_name` = :lname, `phone_number` = :phone, `email_address` = :email, `address` = :address, `modified_time` = NOW() WHERE `user_id` =:userId AND `kin_id` =:kinId";
+        $sql = "SELECT `user_id` FROM  `kins` WHERE `kin_id` =:id AND `user_id` = :userId";
         try {
             $stmt = $this->conn->prepare($sql);
+            $stmt->bindParam("id", $kinId);
             $stmt->bindParam("userId", $userId);
-            $stmt->bindParam("kinId", $kinId);
-            $stmt->bindParam("fname", $fname);
-            $stmt->bindParam("lname", $lname);
-            $stmt->bindParam("phone", $phone);
-            $stmt->bindParam("email", $email);
-            $stmt->bindParam("address", $address);
             $stmt->execute();
-            return TRUE;
+            $kinUserId = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if ($kinUserId['user_id']==$userId) {
+                $sql = "UPDATE `kins` SET `first_name` = :fname, `last_name` = :lname, `phone_number` = :phone, `email_address` = :email, `address` = :address, `modified_time` = NOW() WHERE `user_id` =:userId AND `kin_id` =:kinId";
+                try {
+                    $stmt = $this->conn->prepare($sql);
+                    $stmt->bindParam("userId", $userId);
+                    $stmt->bindParam("kinId", $kinId);
+                    $stmt->bindParam("fname", $fname);
+                    $stmt->bindParam("lname", $lname);
+                    $stmt->bindParam("phone", $phone);
+                    $stmt->bindParam("email", $email);
+                    $stmt->bindParam("address", $address);
+                    $stmt->execute();
+                    return TRUE;
+                } catch(PDOException $e) {
+                    echo '{"error":{"text":'. $e->getMessage() .'}}';
+                }
+            } else {
+                return FALSE;
+            }
+
         } catch(PDOException $e) {
             echo '{"error":{"text":'. $e->getMessage() .'}}';
         }
     }
 
     public function deleteKinsById($id,$userId) {
-        $sql = "SELECT `user_id` FROM  `kins` WHERE `kin_id` =:id AND `user_id` = :userId";
+        $sql = "SELECT `user_id` FROM  `kins` WHERE `kin_id` =:id";
         try {
             $stmt = $this->conn->prepare($sql);
             $stmt->bindParam("id", $id);
-            $stmt->bindParam("userId", $userId);
             $stmt->execute();
             $kinUserId = $stmt->fetch(PDO::FETCH_ASSOC);
 
-            if ($kinUserId==$userId) {
+            if ($kinUserId['user_id']==$userId) {
                 $sql = "UPDATE `kins` SET `active_status` = 0 WHERE `kin_id` =:id AND `user_id` = :userId";
                 try {
                     $stmt = $this->conn->prepare($sql);
@@ -396,8 +406,10 @@ class DbHandler {
             }
         }
         //count no of kins
-        if ($this->getKins($userId)['count']!=0) {
-            $sql = "INSERT INTO `requests` (`user_id`, `device_id`, `longitude`, `latitude`, `address`, `service_type_id`, `created_time`) VALUES (:userId, :device_id, :longitude, :latitude, :address, :service_type, NOW())";
+        $kinArr = $this->getKins($userId);
+        if ($kinArr['count']!="0") {
+            $sql = "INSERT INTO `requests` (`user_id`, `device_id`, `longitude`, `latitude`, `address`, `service_type_id`, `created_time`) VALUES
+                      (:userId, :device_id, :longitude, :latitude, :address, :service_type, NOW())";
             try {
                 $stmt = $this->conn->prepare($sql);
                 $stmt->bindParam("userId", $userId);
@@ -408,20 +420,40 @@ class DbHandler {
                 $stmt->bindParam("service_type", intval($type));
                 $stmt->execute();
                 //return TRUE;
+                $req_id = $this->conn->lastInsertId();
+                $first_name = $this->getProfileById($userId)['first_name'];
+                $last_name = $this->getProfileById($userId)['last_name'];
+                $google_url = new GoogleUrlApi(GOOGLE_URL_KEY);
+                $ebulk = new EbulkSmsApi();
+
+                $url = $google_url->shorten("https://aide-generaleye.rhcloud.com/viewsos.php?request=".$req_id);
 
                 //send the message to all the kins here
+                $nums="";
+                for ($i=0; $i < intval($kinArr['count']); $i++) {
+                    if ($i != intval($kinArr['count'])-1) {
+                        $nums .= $kinArr['kins'][$i]["phone_number"].",";
+                    } else {
+                        $nums .= $kinArr['kins'][$i]["phone_number"];
+                    }
+                    //send email to all the next of kins
+                    $sendEmail = new SendGridEmail();
+                    $sendEmail->sendSOSEmail($kinArr['kins'][$i]["email_address"],$first_name,$last_name,$url);
+                }
 
-                $id = $this->conn->lastInsertId();
+                $ebulk->sendText($nums,"Hello, ".$first_name." is in Trouble. Follow ".$url." to view more details");
+
                 $sql = "UPDATE `requests` SET `service_status_id` = 1, `modified_time` = NOW() WHERE `request_id` =:id AND `user_id` = :userId";
                 try {
                     $this->conn->beginTransaction();
                     $stmt = $this->conn->prepare($sql);
-                    $stmt->bindParam("id", $id);
+                    $stmt->bindParam("id", $req_id);
                     $stmt->bindParam("userId", $userId);
                     $stmt->execute();
                     $this->conn->commit();
 
                     $response['error'] = FALSE;
+                    $response['request_id'] = $req_id;
                     $response['message'] = "SOS Message has been sent";
                 } catch(PDOException $e) {
                     $this->conn->rollBack();
@@ -440,7 +472,7 @@ class DbHandler {
         return $response;
     }
 
-    public function getProviders($userId,$device_id,$longitude,$latitude,$address,$type) {
+    public function getProviders($longitude,$latitude,$address,$type) {
         require_once ('LatLong.php');
         $response = array();
         if ($longitude!="" && $latitude!="") {
@@ -470,7 +502,7 @@ class DbHandler {
                     if ($leng == 0) {
                         $radius += 5;
                     } else {
-                        $arr = array('error' => FALSE, 'count' => $leng, 'providers' => $providersArr);
+                        $arr = array('error' => FALSE, 'count' => strval($leng), 'providers' => $providersArr);
                         return $arr;
                     }
 
@@ -496,7 +528,7 @@ class DbHandler {
                         $response['message'] = "No Service Provider found";
                         return $response;
                     } else {
-                        $arr = array('error' => FALSE, 'count' => $leng, 'providers' => $providersArr);
+                        $arr = array('error' => FALSE, 'count' => strval($leng), 'providers' => $providersArr);
                         return $arr;
                     }
 
@@ -544,6 +576,7 @@ class DbHandler {
                 $sendEmail->sendEmergencyEmail($this->getProviderEmailById($providerId),$this->getUserEmailById($userId));
                 //$this->sendEmergencyEmail($this->getProviderEmailById($providerId),$this->getUserEmailById($userId));
                 $response['error'] = FALSE;
+                $response['request_id'] = $requestId;
                 $response['message'] = "Your Request has been sent";
                 return $response;
             } catch(PDOException $e) {
@@ -576,7 +609,7 @@ class DbHandler {
 
 
     public function sendNotification($owner, $subject, $object, $type) {
-        $sql = "INSERT INTO `notifications` (`own_id`, `sub_id`, `obj_id`, `notification_type`, `created_time`) VALUES (:owner, :subject, :object, :n_type, NOW())";
+        $sql = "INSERT INTO `notifications` (`own_id`, `sub_id`, `obj_id`, `notification_type_id`, `created_time`) VALUES (:owner, :subject, :object, :n_type, NOW())";
         try {
             $stmt = $this->conn->prepare($sql);
             $stmt->bindParam("owner", $owner);

@@ -76,6 +76,29 @@ class SendGridEmail {
         //$response = $this->sendgrid->send($email);
         $this->sendgrid->send($emails);
     }
+
+    /**
+     * Send emails to Service Providers in case of emergency
+     * @param $provider
+     * @param $user
+     */
+
+    public function sendSOSEmail($email, $first_name, $last_name, $url) {
+        $emails = new SendGrid\Email();
+        $emails
+            ->addTo($email)
+            ->setBcc(SENDGRID_CC_EMAIL)
+            ->setFrom(SENDGRID_FROM_EMAIL)
+            ->setFromName(SENDGRID_FROM_NAME)
+            ->setSubject('SOS Alert')
+            ->setHtml('<h1>Save Our Soul Request</h1><br />
+                <p>Hello,</p><br /><p>"'.$first_name." ".$last_name.'" is in Trouble and requires your assistance. Follow this <a href="'.$url.'">LINK</a> to view more details.</p>
+                <p><strong>Thank You!</strong></p><br />')
+        ;
+        //$response = $this->sendgrid->send($email);
+        $this->sendgrid->send($emails);
+    }
+
 }
 
 ?>

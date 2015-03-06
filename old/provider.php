@@ -10,14 +10,14 @@
     <meta name="author" content="">
 
     <title>Aide</title>
-    <link href="css/bootstrap.min.css" rel="stylesheet">
-    <link href="css/cover.css" rel="stylesheet">
+    <link href="../css/bootstrap.min.css" rel="stylesheet">
+    <link href="../css/cover.css" rel="stylesheet">
 
     <!-- jQuery Version 1.11.1 -->
-    <script src="js/jquery.js"></script>
+    <script src="../js/jquery.js"></script>
 
     <!-- Bootstrap Core JavaScript -->
-    <script src="js/bootstrap.min.js"></script>
+    <script src="../js/bootstrap.min.js"></script>
 
     <!-- Custom CSS -->
     <style>
@@ -49,7 +49,7 @@
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
             </button>
-            <strong><a class="navbar-brand" href="./">Aide</a></strong>
+            <strong><a class="navbar-brand" href="../">Aide</a></strong>
         </div>
         <!-- Collect the nav links, forms, and other content for toggling -->
         <div class="collapse navbar-collapse pull-right" id="bs-example-navbar-collapse-1">
@@ -61,7 +61,7 @@
                     <a href="#">Edit Profile</a>
                 </li>
                 <li>
-                    <a href="./signup.php">Logout</a>
+                    <a href="signup.php">Logout</a>
                 </li>
             </ul>
         </div>

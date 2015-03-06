@@ -8,7 +8,8 @@ function register($name,$email,$password,$phone,$service,$address,$latitude,$lon
         if ($create == REGISTRATION_SUCCESSFUL) {
             $_SESSION['authorized'] = 1;
             $_SESSION['privilege'] = "provider";
-            header('Location: provider.php');
+            $_SESSION['email'] = $email;
+            header('Location: ./provider.php');
             exit();
         } elseif ($create == EMAIL_ALREADY_EXISTS) {
             $_SESSION['error'] = 'Email Already Exists';
@@ -20,22 +21,32 @@ function register($name,$email,$password,$phone,$service,$address,$latitude,$lon
     }
 }
 
-function login($email,$password,$type) {
+function login($email,$password) {
     if (isValidEmail($email)) {
         $db = new DbHandlerForWeb();
-        if ($type=="provider") {
-            $login = $db->providerLogin($email,$password);
-            if ($login) {
-                $_SESSION['authorized'] = 1;
-                $_SESSION['privilege'] = "provider";
-                header('Location: provider.php');
-                exit();
-            } else {
-                $_SESSION['error'] = 'Incorrect Credentials. Please Try Again';
-            }
+        $login = $db->providerLogin($email,$password);
+        if ($login) {
+            $_SESSION['authorized'] = 1;
+            $_SESSION['privilege'] = "provider";
+            $_SESSION['email'] = $email;
+            header('Location: ./provider.php');
+            exit();
         } else {
-            $_SESSION['error'] = 'WE don\'t support YOU!!';
+            $_SESSION['error'] = 'Incorrect Credentials. Please Try Again';
         }
+//        } else {
+//            //$_SESSION['error'] = 'WE don\'t support YOU!!';
+//            $login = $db->userLogin($email,$password);
+//            if ($login) {
+//                $_SESSION['authorized'] = 1;
+//                $_SESSION['privilege'] = "user";
+//                $_SESSION['email'] = $email;
+//                header('Location: ./user.php');
+//                exit();
+//            } else {
+//                $_SESSION['error'] = 'Incorrect Credentials. Please Try Again';
+//            }
+//        }
 
     } else {
         $_SESSION['error'] = 'Email Address is Not Valid';
@@ -56,7 +67,7 @@ function logged_in() {
 
 function isProvider() {
     if(isset($_SESSION['privilege'])){
-        if($_SESSION['privilege'] == "admin") {
+        if($_SESSION['privilege'] == "provider") {
             return true;
         } else {
             return false;
@@ -68,7 +79,7 @@ function login_required() {
     if(logged_in()) {
         return true;
     } else {
-        header('Location: '.config::DIRADMIN.'login');
+        header('Location: ./signup.php');
         exit();
     }
 }
@@ -77,7 +88,7 @@ function logout(){
     unset($_SESSION['authorized']);
     session_unset();
     session_destroy();
-    header('Location: '.config::DIRADMIN.'login');
+    header('Location: ./signup.php');
     exit();
 }
 
@@ -100,24 +111,6 @@ function messages() {
     echo "$message";
 }
 
-// Render error messages
-function feedbackMessages() {
-    $message = '';
-    if (isset($_GET['msg'])){
-        if($_GET['msg'] == '0') {
-            $message = '<div class="alert alert-success"><button type="button" class="close" data-dismiss="alert">×</button>Feedback has been Sent</div>';
-            //$_SESSION['success'] = '';
-        }elseif($_GET['msg'] == '1') {
-            $message = '<div class="alert alert-danger"><button type="button" class="close" data-dismiss="alert">×</button>Sorry, Invalid Email Address</div>';
-
-        }elseif($_GET['msg'] == '2') {
-            $message = '<div class="alert alert-danger"><button type="button" class="close" data-dismiss="alert">×</button>Please fill the required fields appropriately</div>';
-
-        }
-    }
-
-    echo "$message";
-}
 
 function errors($error){
     if (!empty($error))

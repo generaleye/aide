@@ -89,7 +89,6 @@ if(isset($_GET['logout'])){
                     if(logged_in()) {
                         if(isProvider()) {
                             echo '<li><a href="dashboard.php">Dashboard</a></li>
-                                    <li><a href="editprovider.php">Edit Profile</a></li>
                                     <li><a href="./index.php?logout">Logout</a></li>';
                         }
                     } else {
@@ -110,7 +109,8 @@ if(isset($_GET['logout'])){
 
         <div class="row">
             <div class="col-xs-12">
-                <div id="map-canvas">hello</div>
+<!--                <div id="map-canvas">hello</div>-->
+                <img src="logo.png" />
             </div>
         </div>
     </div>

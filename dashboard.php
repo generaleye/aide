@@ -72,9 +72,6 @@ if(isset($_GET['logout'])){
                     <a href="dashboard.php">Dashboard</a>
                 </li>
                 <li>
-                    <a href="editprovider.php">Edit Profile</a>
-                </li>
-                <li>
                     <a href="./index.php?logout">Logout</a>
                 </li>
             </ul>

@@ -141,7 +141,7 @@ CREATE TABLE IF NOT EXISTS `reviews` (
   `user_id` int(10) unsigned NOT NULL,
   `request_id` int(10) unsigned NOT NULL,
   `provider_id` int(10) unsigned NOT NULL,
-  `rating` tinyint(1) unsigned NOT NULL DEFAULT '0',
+  `rating` FLOAT(3,1) unsigned NOT NULL DEFAULT '0.0',
   `comment` text NOT NULL,
   `created_time` datetime NOT NULL,
   `modified_time` datetime NOT NULL,

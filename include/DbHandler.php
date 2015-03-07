@@ -324,7 +324,7 @@ class DbHandler {
             $kinsArr  = $stmt->fetchAll(PDO::FETCH_ASSOC);
             //$postsArr = objectToArray($posts);
             $leng = count($kinsArr);
-            $arr = array('count'=>strval($leng), 'kins'=>$kinsArr);
+            $arr = array('count'=>$leng, 'kins'=>$kinsArr);
             return $arr;
         } catch(PDOException $e) {
             echo '{"error":{"text":'. $e->getMessage() .'}}';
@@ -411,7 +411,7 @@ class DbHandler {
         }
         //count no of kins
         $kinArr = $this->getKins($userId);
-        if ($kinArr['count']!="0") {
+        if ($kinArr['count']!=0) {
             $sql = "INSERT INTO `requests` (`user_id`, `device_id`, `longitude`, `latitude`, `address`, `service_type_id`, `created_time`) VALUES
                       (:userId, :device_id, :longitude, :latitude, :address, :service_type, NOW())";
             try {
@@ -434,8 +434,8 @@ class DbHandler {
 
                 //send the message to all the kins here
                 $nums="";
-                for ($i=0; $i < intval($kinArr['count']); $i++) {
-                    if ($i != intval($kinArr['count'])-1) {
+                for ($i=0; $i < $kinArr['count']; $i++) {
+                    if ($i != $kinArr['count']-1) {
                         $nums .= $kinArr['kins'][$i]["phone_number"].",";
                     } else {
                         $nums .= $kinArr['kins'][$i]["phone_number"];
@@ -486,6 +486,8 @@ class DbHandler {
             while ($leng == 0) {
                 if ($radius >= 45) {
                     $response['error'] = TRUE;
+                    $response['count'] = 0;
+                    $response['providers'] = [];
                     $response['message'] = "No Service Provider found";
                     return $response;
                 }
@@ -506,7 +508,7 @@ class DbHandler {
                     if ($leng == 0) {
                         $radius += 5;
                     } else {
-                        $arr = array('error' => FALSE, 'count' => strval($leng), 'providers' => $providersArr);
+                        $arr = array('error' => FALSE, 'count' => $leng, 'providers' => $providersArr);
                         return $arr;
                     }
 
@@ -529,10 +531,12 @@ class DbHandler {
                     $leng = count($providersArr);
                     if ($leng == 0) {
                         $response['error'] = TRUE;
+                        $response['count'] = 0;
+                        $response['providers'] = [];
                         $response['message'] = "No Service Provider found";
                         return $response;
                     } else {
-                        $arr = array('error' => FALSE, 'count' => strval($leng), 'providers' => $providersArr);
+                        $arr = array('error' => FALSE, 'count' => $leng, 'providers' => $providersArr);
                         return $arr;
                     }
 

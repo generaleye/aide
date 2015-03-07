@@ -160,7 +160,7 @@ if(isset($_GET['logout'])){
                                 <div class="row">
                                     <div id="old-button-div" class="btn-group" style="padding:30px;<?php if (intval($requestArr['statuses_request_status_id'])==2) {echo ""; } else {echo "display:none;";} ?>">
                                         <?php
-                                        if (!((intval($requestArr['statuses_service_status_id'])==1) || (intval($requestArr['statuses_request_status_id'])==4) || (intval($requestArr['statuses_service_status_id'])))) {
+                                        if (!((intval($requestArr['statuses_service_status_id'])==1) || (intval($requestArr['statuses_request_status_id'])==4) || (intval($requestArr['statuses_service_status_id'])==4))) {
                                             echo '<button class="btn btn-default" >Send a message</button>
                                         <button id="complete" class="btn btn-success" >Completed</button>
                                         <button id="abort" class="btn btn-danger" >Abort</button>';

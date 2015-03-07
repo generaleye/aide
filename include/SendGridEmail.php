@@ -91,7 +91,7 @@ class SendGridEmail {
             ->setFrom(SENDGRID_FROM_EMAIL)
             ->setFromName(SENDGRID_FROM_NAME)
             ->setSubject('SOS Alert')
-            ->setHtml('<h1>Save Our Soul Request</h1><br />
+            ->setHtml('<h1>Save Our Souls Request</h1><br />
                 <p>Hello,</p><br /><p>"'.$first_name." ".$last_name.'" is in Trouble and requires your assistance. Follow this <a href="'.$url.'">LINK</a> to view more details.</p>
                 <p><strong>Thank You!</strong></p><br />')
         ;

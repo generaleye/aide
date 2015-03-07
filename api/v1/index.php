@@ -138,6 +138,7 @@ $app->post('/editkins', 'authenticate', 'editKins');
 $app->post('/deletekins', 'authenticate', 'deleteKins');
 $app->post('/requestservice', 'authenticate', 'requestService');
 $app->post('/selectprovider', 'authenticate', 'selectProvider');
+$app->post('/cancelrequest', 'authenticate', 'cancelRequest');
 $app->post('/review', 'authenticate', 'review');
 
 
@@ -361,20 +362,47 @@ function selectProvider() {
     echoRespnse(200, $response);
 }
 
+function cancelRequest() {
+    //global $app;
+    $app = \Slim\Slim::getInstance();
+    verifyRequiredParams(array('request_id'));
+
+    $req = $app->request(); // Getting parameters
+    $requestId = $req->params('request_id');
+
+    $apikey = $app->request->params('apikey');
+    $db = new DbHandler();
+    $userId = $db->getUserId($apikey);
+    $response = array();
+    $returnValue = $db->cancelRequest($userId,$requestId);
+
+    if ($returnValue == TRUE) {
+        $response['error'] = FALSE;
+        $response['request_id'] = $requestId;
+        $response['message'] = "Your Request has been Cancelled";
+    } else {
+        // unknown error occurred
+        $response['error'] = TRUE;
+        $response['message'] = "An error occurred. Please try again";
+    }
+    echoRespnse(200, $response);
+}
+
 function review() {
     //global $app;
     $app = \Slim\Slim::getInstance();
-    verifyRequiredParams(array('id'));
+    verifyRequiredParams(array('provider_id','request_id'));
 
     $req = $app->request(); // Getting parameters
-    $providerId = $req->params('id');
+    $requestId = $req->params('request_id');
+    $providerId = $req->params('provider_id');
     $rating = $req->params('rating');
     $comment = $req->params('comment');
 
     $apiKey = $app->request->params('apikey');
     $db = new DbHandler();
     $userId = $db->getUserId($apiKey);
-    $review = $db->addReview($userId, $providerId, $rating, $comment);
+    $review = $db->addReview($userId,$requestId, $providerId, $rating, $comment);
 
     $response = array();
     if ($review == TRUE) {

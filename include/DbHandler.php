@@ -624,12 +624,41 @@ class DbHandler {
         }
     }
 
-    public function addReview($userId, $providerId, $rating, $comment) {
+    public function cancelRequest($userId,$requestId) {
+        $sql = "SELECT `request_id`, `user_id` FROM `requests` WHERE `request_id` =:request_id AND `active_status` = 1";
+        try {
+            $stmt = $this->conn->prepare($sql);
+            $stmt->bindParam("request_id", $requestId);
+            $stmt->execute();
+            $request = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if ($request['user_id']==$userId) {
+                $sql = "UPDATE `requests` SET `service_status_id` = 3, `modified_time` = NOW() WHERE `user_id` =:userId AND `request_id` =:requestId";
+                try {
+                    $stmt = $this->conn->prepare($sql);
+                    $stmt->bindParam("userId", $userId);
+                    $stmt->bindParam("requestId", $requestId);
+                    $stmt->execute();
+                    return TRUE;
+                } catch(PDOException $e) {
+                    echo '{"error":{"text":'. $e->getMessage() .'}}';
+                }
+            } else {
+                return FALSE;
+            }
+
+        } catch(PDOException $e) {
+            echo '{"error":{"text":'. $e->getMessage() .'}}';
+        }
+    }
+
+    public function addReview($userId,$requestId, $providerId, $rating, $comment) {
         if ($rating=="") {$rating = 0;}
-        $sql = "INSERT INTO `reviews` (`user_id`, `provider_id`,`rating`, `comment`, `created_time`) VALUES (:userId, :provider_id, :rating, :comment, NOW())";
+        $sql = "INSERT INTO `reviews` (`user_id`, `request_id`, `provider_id`,`rating`, `comment`, `created_time`) VALUES (:userId, :request_id, :provider_id, :rating, :comment, NOW())";
         try {
             $stmt = $this->conn->prepare($sql);
             $stmt->bindParam("userId", $userId);
+            $stmt->bindParam("request_id", $requestId);
             $stmt->bindParam("provider_id", $providerId);
             $stmt->bindParam("rating", intval($rating));
             $stmt->bindParam("comment", $comment);

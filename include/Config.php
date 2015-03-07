@@ -31,6 +31,8 @@ define('EBULK_FROM_NAME', 'Aide Dev');
 
 define('GOOGLE_URL_KEY', 'AIzaSyDsIoSE8N4_r4t3A46s5_EYAY3NYVWpCKs');
 
+define('GOOGLE_GCM_APIKEY', "AIzaSyBy6510rXlahAbX_SDejy-zH1vNmgOWS2M");
+
 define('REGISTRATION_SUCCESSFUL', 0);
 define('REGISTRATION_FAILED', 1);
 define('EMAIL_ALREADY_EXISTS', 2);

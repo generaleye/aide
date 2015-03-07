@@ -6,6 +6,7 @@
  */
 
 if(isset($_POST['methods'])) {
+    require_once ('GoogleGCMApi.php');
     $db = new DbHandlerForWeb();
     switch ($_POST['methods']) {
         case "approveRequest":
@@ -18,7 +19,7 @@ if(isset($_POST['methods'])) {
             $db->completeRequest($_POST['request']);
             break;
         case "abortRequest":
-            $db->abortRequest($_POST['request']);
+            $db->abortRequest($_POST['request'],$_POST['provider']);
             break;
         default:
             break;
@@ -419,11 +420,11 @@ class DbHandlerForWeb {
 
     public function getRequest($id,$email) {
         $provider = $this->getProviderByEmail($email)['provider_id'];
-        $sql = 'SELECT requests.request_id, requests.user_id, requests.latitude, requests.longitude,
+        $sql = 'SELECT requests.request_id, requests.user_id, requests.latitude, requests.longitude, requests.device_id,
                 request_checks.request_id AS `checks_request_id`,
                 request_checks.request_status_id AS `statuses_request_status_id`, request_statuses.name AS `request_statuses_name`,
                  service_statuses.service_status_id AS `statuses_service_status_id`, service_statuses.name AS `service_statuses_name`,
-                  users.first_name, users.last_name, users.phone_number
+                  users.first_name, users.last_name, users.phone_number, users.address
                 FROM `requests`, `request_checks`, `users`, `request_statuses`, `service_statuses`
                 WHERE requests.request_id = :id AND
                  request_checks.provider_id = :provider AND
@@ -438,9 +439,27 @@ class DbHandlerForWeb {
             $stmt->bindParam("provider", $provider);
             $stmt->execute();
             $requestArr  = $stmt->fetch(PDO::FETCH_ASSOC);
-            //$postsArr = objectToArray($posts);
-            //$leng = count($requestsArr);
-            //$arr = array('count'=>$leng, 'requests'=>$requestsArr);
+            return $requestArr;
+        } catch(PDOException $e) {
+            echo '{"error":{"text":'. $e->getMessage() .'}}';
+        }
+    }
+
+    public function getSOSRequest($id) {
+        $sql = 'SELECT requests.request_id, requests.user_id, requests.latitude, requests.longitude,
+                 service_statuses.service_status_id AS `statuses_service_status_id`, service_statuses.name AS `service_statuses_name`,
+                  users.first_name, users.last_name, users.phone_number, users.address
+                FROM `requests`, `users`, `service_statuses`
+                WHERE requests.request_id = :id AND
+                  requests.user_id = users.user_id AND
+                  requests.service_type_id = 5 AND
+                    requests.service_status_id = service_statuses.service_status_id AND
+                     requests.active_status = 1';
+        try {
+            $stmt = $this->conn->prepare($sql);
+            $stmt->bindParam("id", $id);
+            $stmt->execute();
+            $requestArr  = $stmt->fetch(PDO::FETCH_ASSOC);
             return $requestArr;
         } catch(PDOException $e) {
             echo '{"error":{"text":'. $e->getMessage() .'}}';
@@ -471,6 +490,10 @@ class DbHandlerForWeb {
             $stmt->bindParam("request", intval($request));
             $stmt->bindParam("provider", intval($provider));
             $stmt->execute();
+
+            $device = $this->getDeviceIdFromRequests($request);
+            $gcm = new GoogleGCMApi($device,"".json_encode(array('request_id'=>$request,'type'=>"approve",'message'=>"Your Request has been Approved"))."");
+            $gcm->send();
             return TRUE;
         } catch(PDOException $e) {
             echo '{"error":{"text":'. $e->getMessage() .'}}';
@@ -485,6 +508,10 @@ class DbHandlerForWeb {
             $stmt->bindParam("request", intval($request));
             $stmt->bindParam("provider", intval($provider));
             $stmt->execute();
+
+            $device = $this->getDeviceIdFromRequests($request);
+            $gcm = new GoogleGCMApi($device,"".json_encode(array('request_id'=>$request,'type'=>"decline",'message'=>"Your Request has been Declined"))."");
+            $gcm->send();
             return TRUE;
         } catch(PDOException $e) {
             echo '{"error":{"text":'. $e->getMessage() .'}}';
@@ -497,24 +524,45 @@ class DbHandlerForWeb {
             $stmt = $this->conn->prepare($sql);
             $stmt->bindParam("request", intval($request));
             $stmt->execute();
+
+            $device = $this->getDeviceIdFromRequests($request);
+            $gcm = new GoogleGCMApi($device,"".json_encode(array('request_id'=>$request,'type'=>"complete",'message'=>"Your Request has been Completed"))."");
+            $gcm->send();
             return TRUE;
         } catch(PDOException $e) {
             echo '{"error":{"text":'. $e->getMessage() .'}}';
         }
     }
-    public function abortRequest($request) {
-        $sql = "UPDATE `requests` SET `service_status_id` = 3, `modified_time` = NOW() WHERE `request_id` = :request";
+    public function abortRequest($request,$email) {
+        $provider = $this->getProviderByEmail($email)['provider_id'];
+        $sql = "UPDATE `request_checks` SET `request_status_id` = 4, `modified_time` = NOW() WHERE `request_id` = :request AND `provider_id` = :provider";
         try {
             $stmt = $this->conn->prepare($sql);
             $stmt->bindParam("request", intval($request));
+            $stmt->bindParam("provider", intval($provider));
             $stmt->execute();
+
+            $device = $this->getDeviceIdFromRequests($request);
+            $gcm = new GoogleGCMApi($device,"".json_encode(array('request_id'=>$request,'type'=>"abort",'message'=>"Your Request has been Aborted"))."");
+            $gcm->send();
             return TRUE;
         } catch(PDOException $e) {
             echo '{"error":{"text":'. $e->getMessage() .'}}';
         }
     }
 
-
+    public function getDeviceIdFromRequests($id) {
+        $sql = "SELECT `device_id` FROM `requests` WHERE `request_id` =:id";
+        try {
+            $stmt = $this->conn->prepare($sql);
+            $stmt->bindParam("id", $id);
+            $stmt->execute();
+            $device = $stmt->fetch(PDO::FETCH_ASSOC);
+            return $device['device_id'];
+        } catch(PDOException $e) {
+            echo '{"error":{"text":'. $e->getMessage() .'}}';
+        }
+    }
 
 }
 

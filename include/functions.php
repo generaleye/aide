@@ -34,20 +34,6 @@ function login($email,$password) {
         } else {
             $_SESSION['error'] = 'Incorrect Credentials. Please Try Again';
         }
-//        } else {
-//            //$_SESSION['error'] = 'WE don\'t support YOU!!';
-//            $login = $db->userLogin($email,$password);
-//            if ($login) {
-//                $_SESSION['authorized'] = 1;
-//                $_SESSION['privilege'] = "user";
-//                $_SESSION['email'] = $email;
-//                header('Location: ./user.php');
-//                exit();
-//            } else {
-//                $_SESSION['error'] = 'Incorrect Credentials. Please Try Again';
-//            }
-//        }
-
     } else {
         $_SESSION['error'] = 'Email Address is Not Valid';
     }

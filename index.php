@@ -91,10 +91,6 @@ if(isset($_GET['logout'])){
                             echo '<li><a href="provider.php">Dashboard</a></li>
                                     <li><a href="editprovider.php">Edit Profile</a></li>
                                     <li><a href="./index.php?logout">Logout</a></li>';
-                        }else {
-                            echo '<li><a href="user.php">Dashboard</a></li>
-                                    <li><a href="edituser.php">Edit Profile</a></li>
-                                    <li><a href="./index.php?logout">Logout</a></li>';
                         }
                     } else {
                         echo '<li><a href="#">About</a></li>

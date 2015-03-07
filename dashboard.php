@@ -81,30 +81,26 @@ if(isset($_GET['logout'])){
     <!-- /.container -->
 </nav>
 
-<div class="outer">
-    <div class="middle">
-        <div class="wrapper">
-            <div class="col-md-12">
-                <table class="table table-striped table-bordered table-hover table-responsive">
-                    <thead><tr><td>S/N</td><td>Name</td><td>Address</td><td>Date</td><td>Request Status</td><td>Service Status</td></tr></thead>
-                    <tbody>
-                        <tr><?php
-                            $db = new DbHandlerForWeb();
-                            $requestArr = $db->getProvidersRequests($_SESSION['email']);
-                            //print_r($requestArr);
-                            for ($i=0;$i<=$requestArr['count']-1;$i++) {
-                                echo '<td>'.($i+1).'</td>
+<div class="container" style="padding-top: 70px">
+    <div class="col-md-12">
+        <table class="table table-striped table-bordered table-hover table-responsive">
+            <thead><tr><td>S/N</td><td>Name</td><td>Address</td><td>Date</td><td>Request Status</td><td>Service Status</td></tr></thead>
+            <tbody>
+            <tr><?php
+                $db = new DbHandlerForWeb();
+                $requestArr = $db->getProvidersRequests($_SESSION['email']);
+                //print_r($requestArr);
+                for ($i=0;$i<=$requestArr['count']-1;$i++) {
+                    echo '<td>'.($i+1).'</td>
                                         <td>'.strtoupper($requestArr['requests'][$i]['last_name']).' '.$requestArr['requests'][$i]['first_name'].'</td>
                                         <td><a href="./requestdetails.php?request='.$requestArr['requests'][$i]['request_id'].'">View Details</a></td>
                                         <td>'.$requestArr['requests'][$i]['request_created_time'].'</td>
                                         <td>'.$requestArr['requests'][$i]['request_statuses_name'].'</td>
                                         <td>'.$requestArr['requests'][$i]['service_statuses_name'].'</td></tr>';
-                            }
-                            ?>
-                    </tbody>
-                </table>
-            </div>
-        </div>
+                }
+                ?>
+            </tbody>
+        </table>
     </div>
 </div>
 

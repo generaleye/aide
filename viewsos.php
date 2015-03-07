@@ -101,73 +101,69 @@ if(isset($_GET['request']) && !(empty($_GET['request']))) {
 
 
 
-<div class="outer">
-    <div class="middle">
-        <div id="wrapper">
+<div id="container">
 
-            <div class="col-md-12">
+    <div class="col-md-12">
+        <div class="row">
+            <div class="col-md-8 col-xs-12">
+                <div id="map-canvas" class="center"></div>
+            </div>
+            <div class="col-md-4 col-xs-12 border-left">
                 <div class="row">
-                    <div class="col-md-8 col-xs-12">
-                        <div id="map-canvas" class="center"></div>
-                    </div>
-                    <div class="col-md-4 col-xs-12 border-left">
-                        <div class="row">
-                            <img src="badass smiley.jpg" class="img-thumbnail center" width="150px" height="150px" />
-                        </div>
-                        <br/>
-                        <div class="row">
-                            <p class="info-header">Name:<h5 class="center-text"><?php echo strtoupper($lname)." ".$fname; ?></h5></p>
-                        </div>
-                        <hr/>
-                        <div class="row">
-                            <p class="info-header">Address:<h5 class="center-text"><?php echo $address; ?></h5></p>
-                        </div>
-                        <hr/>
-                        <div class="row">
-                            <p class="info-header">Phone Number:<h5 class="center-text"><?php echo $phone; ?></h5></p>
-                        </div>
-                    </div>
-
+                    <img src="badass smiley.jpg" class="img-thumbnail center" width="150px" height="150px" />
                 </div>
-                    <p>A user with the name <?php echo strtoupper($lname)." ".$fname; ?>
-                        sent an SOS message to you via our service. Kindly contact the user immediately if you know this person or send us an email if you do not know this user to stop receiving messages from this user</p>
-<!--                <div class="row">-->
-<!--                    <div class="col-md-8 col-xs-12">-->
-<!--                        <div class="row">-->
-<!--                            <div class="col-md-12">-->
-<!--                                <div class="row">-->
-<!--                                    <div id="new-button-div" class="btn-group" style="padding:30px">-->
-<!--                                        <button class="btn btn-success" >Approve</button>-->
-<!--                                        <button class="btn btn-danger" >Decline</button>-->
-<!--                                    </div>-->
-<!--                                </div>-->
-<!--                            </div>-->
-<!--                        </div>-->
-<!--                        <div class="row">-->
-<!--                            <div class="col-md-12" >-->
-<!--                                <div class="row">-->
-<!--                                    <div id="old-button-div" class="btn-group" style="padding:30px;display:none;">-->
-<!--                                        <button class="btn btn-default" >Send a message</button>-->
-<!--                                        <button class="btn btn-success" >Completed</button>-->
-<!--                                        <button class="btn btn-danger" >Abort</button>-->
-<!--                                    </div>-->
-<!--                                </div>-->
-<!--                            </div>-->
-<!--                        </div>-->
-<!--                    </div>-->
-<!--                    <div class="col-md-4 col-xs-12 border-left" style="margin-bottom:20px">-->
-<!--                        <div class="center-text border-top">-->
-<!--                            <h4 class="info-header">Next of Kin:</h4>-->
-<!--                            <p>Name: <span>Burna Bomboy</span></p>-->
-<!--                            <p>Address: <span>Somewhere in lagos</span></p>-->
-<!--                            <p>Phone Number:  <span>0807782921</span></p>-->
-<!--                        </div>-->
-<!--                    </div>-->
-<!--                </div>-->
+                <br/>
+                <div class="row">
+                    <p class="info-header">Name:<h5 class="center-text"><?php echo strtoupper($lname)." ".$fname; ?></h5></p>
+                </div>
+                <hr/>
+                <div class="row">
+                    <p class="info-header">Address:<h5 class="center-text"><?php echo $address; ?></h5></p>
+                </div>
+                <hr/>
+                <div class="row">
+                    <p class="info-header">Phone Number:<h5 class="center-text"><?php echo $phone; ?></h5></p>
+                </div>
             </div>
 
         </div>
+        <p>A user with the name <?php echo strtoupper($lname)." ".$fname; ?>
+            sent an SOS message to you via our service. Kindly contact the user immediately if you know this person or send us an email if you do not know this user to stop receiving messages from this user</p>
+        <!--                <div class="row">-->
+        <!--                    <div class="col-md-8 col-xs-12">-->
+        <!--                        <div class="row">-->
+        <!--                            <div class="col-md-12">-->
+        <!--                                <div class="row">-->
+        <!--                                    <div id="new-button-div" class="btn-group" style="padding:30px">-->
+        <!--                                        <button class="btn btn-success" >Approve</button>-->
+        <!--                                        <button class="btn btn-danger" >Decline</button>-->
+        <!--                                    </div>-->
+        <!--                                </div>-->
+        <!--                            </div>-->
+        <!--                        </div>-->
+        <!--                        <div class="row">-->
+        <!--                            <div class="col-md-12" >-->
+        <!--                                <div class="row">-->
+        <!--                                    <div id="old-button-div" class="btn-group" style="padding:30px;display:none;">-->
+        <!--                                        <button class="btn btn-default" >Send a message</button>-->
+        <!--                                        <button class="btn btn-success" >Completed</button>-->
+        <!--                                        <button class="btn btn-danger" >Abort</button>-->
+        <!--                                    </div>-->
+        <!--                                </div>-->
+        <!--                            </div>-->
+        <!--                        </div>-->
+        <!--                    </div>-->
+        <!--                    <div class="col-md-4 col-xs-12 border-left" style="margin-bottom:20px">-->
+        <!--                        <div class="center-text border-top">-->
+        <!--                            <h4 class="info-header">Next of Kin:</h4>-->
+        <!--                            <p>Name: <span>Burna Bomboy</span></p>-->
+        <!--                            <p>Address: <span>Somewhere in lagos</span></p>-->
+        <!--                            <p>Phone Number:  <span>0807782921</span></p>-->
+        <!--                        </div>-->
+        <!--                    </div>-->
+        <!--                </div>-->
     </div>
+
 </div>
 <script type="text/javascript"
         src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAq-qALg5CO4EPfaV0kgcqTjlCp9oVriVc">

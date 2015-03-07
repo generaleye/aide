@@ -92,9 +92,7 @@ if(isset($_GET['logout'])){
                                     <li><a href="./index.php?logout">Logout</a></li>';
                         }
                     } else {
-                        echo '<li><a href="#">About</a></li>
-                                <li><a href="#">Services</a></li>
-                                <li><a href="signup.php">Login / Register</a></li>';
+                        echo '<li><a href="signup.php">Login / Register</a></li>';
                     }
                     ?>
                 </ul>
@@ -104,16 +102,16 @@ if(isset($_GET['logout'])){
         <!-- /.container -->
     </nav>
 
-
     <div class="container">
-
         <div class="row">
-            <div class="col-xs-12">
-<!--                <div id="map-canvas">hello</div>-->
-                <img src="logo.png" />
+            <div class="col-md-12">
+                <div class="col-md-offset-1 col-md-10 col-md-offset-1">
+                    <img src="logo.png" style="display: block;margin: 0 auto;"/>
+                </div>
             </div>
         </div>
     </div>
+
 
 
 </body>

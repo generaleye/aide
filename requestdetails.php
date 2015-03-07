@@ -107,85 +107,81 @@ if(isset($_GET['logout'])){
 
 
 
-<div class="outer">
-    <div class="middle">
-        <div id="wrapper">
+<div id="container" style="padding-top: 70px">
 
-            <div class="col-md-12">
+    <div class="col-md-12">
+        <div class="row">
+            <div class="col-md-8 col-xs-12">
+                <div id="map-canvas" class="center"></div>
+            </div>
+            <div class="col-md-4 col-xs-12 border-left">
                 <div class="row">
-                    <div class="col-md-8 col-xs-12">
-                        <div id="map-canvas" class="center"></div>
-                    </div>
-                    <div class="col-md-4 col-xs-12 border-left">
-                        <div class="row">
-                            <img src="badass smiley.jpg" class="img-thumbnail center" width="150px" height="150px" />
-                        </div>
-                        <br/>
-                        <div class="row">
-                            <p class="info-header">Name:<h5 class="center-text"><?php echo strtoupper($requestArr['last_name']).' '.$requestArr['first_name']; ?></h5></p>
-                        </div>
-                        <hr/>
-                        <div class="row">
-                            <p class="info-header">Address:<h5 class="center-text"><?php echo $requestArr['address'] ?></h5></p>
-                        </div>
-                        <hr/>
-                        <div class="row">
-                            <p class="info-header">Phone Number:<h5 class="center-text"><?php echo $requestArr['phone_number']; ?></h5></p>
-                        </div>
-                    </div>
-
+                    <img src="badass smiley.jpg" class="img-thumbnail center" width="150px" height="150px" />
                 </div>
+                <br/>
                 <div class="row">
-                    <div class="col-md-8 col-xs-12">
-                        <div class="row">
-                            <div class="col-md-12">
-                                <div class="row">
-                                    <div id="new-button-div" class="btn-group" style="padding:30px">
-                                        <?php
-                                        if (intval($requestArr['statuses_request_status_id'])==1) {
-                                            echo '<button id="approve" class="btn btn-success" >Approve</button>
-                                                    <button id="decline" class="btn btn-danger" >Decline</button>';
-                                        }
-                                        ?>
-
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-12" >
-                                <div class="row">
-                                    <div id="old-button-div" class="btn-group" style="padding:30px;<?php if (intval($requestArr['statuses_request_status_id'])==2) {echo ""; } else {echo "display:none;";} ?>">
-                                        <?php
-                                        if (!((intval($requestArr['statuses_service_status_id'])==1) || (intval($requestArr['statuses_request_status_id'])==4) || (intval($requestArr['statuses_service_status_id'])==4))) {
-                                            echo '<button class="btn btn-default" >Send a message</button>
-                                        <button id="complete" class="btn btn-success" >Completed</button>
-                                        <button id="abort" class="btn btn-danger" >Abort</button>';
-                                        }
-                                        ?>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-4 col-xs-12 border-left" style="margin-bottom:20px">
-                        <?php
-                        $kins = $db->getKinsForProviders($requestArr['user_id']);
-                        //var_dump($kins);
-                        for ($i=0;$i<=$kins['count']-1;$i++) {
-                            echo '<div class="center-text border-top"><h4 class="info-header">('.($i+1).') Next of Kin:</h4>
-                                        <p>Name: <span>'.strtoupper($kins['kins'][$i]['last_name']).' '.$kins['kins'][$i]['first_name'].'</span></p>
-                                        <p>Address: <span>'.$kins['kins'][$i]['address'].'</span></p>
-                                        <p>Phone Number:  <span>'.$kins['kins'][$i]['phone_number'].'</span></p>
-                                        </div>';
-                        }
-                        ?>
-                    </div>
+                    <p class="info-header">Name:<h5 class="center-text"><?php echo strtoupper($requestArr['last_name']).' '.$requestArr['first_name']; ?></h5></p>
+                </div>
+                <hr/>
+                <div class="row">
+                    <p class="info-header">Address:<h5 class="center-text"><?php echo $requestArr['address'] ?></h5></p>
+                </div>
+                <hr/>
+                <div class="row">
+                    <p class="info-header">Phone Number:<h5 class="center-text"><?php echo $requestArr['phone_number']; ?></h5></p>
                 </div>
             </div>
 
         </div>
+        <div class="row">
+            <div class="col-md-8 col-xs-12">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="row">
+                            <div id="new-button-div" class="btn-group" style="padding:30px">
+                                <?php
+                                if (intval($requestArr['statuses_request_status_id'])==1) {
+                                    echo '<button id="approve" class="btn btn-success" >Approve</button>
+                                                    <button id="decline" class="btn btn-danger" >Decline</button>';
+                                }
+                                ?>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12" >
+                        <div class="row">
+                            <div id="old-button-div" class="btn-group" style="padding:30px;<?php if (intval($requestArr['statuses_request_status_id'])==2) {echo ""; } else {echo "display:none;";} ?>">
+                                <?php
+                                if (!((intval($requestArr['statuses_service_status_id'])==1) || (intval($requestArr['statuses_request_status_id'])==4) || (intval($requestArr['statuses_service_status_id'])==4))) {
+                                    echo '<button class="btn btn-default" >Send a message</button>
+                                        <button id="complete" class="btn btn-success" >Completed</button>
+                                        <button id="abort" class="btn btn-danger" >Abort</button>';
+                                }
+                                ?>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 col-xs-12 border-left" style="margin-bottom:20px">
+                <?php
+                $kins = $db->getKinsForProviders($requestArr['user_id']);
+                //var_dump($kins);
+                for ($i=0;$i<=$kins['count']-1;$i++) {
+                    echo '<div class="center-text border-top"><h4 class="info-header">('.($i+1).') Next of Kin:</h4>
+                                        <p>Name: <span>'.strtoupper($kins['kins'][$i]['last_name']).' '.$kins['kins'][$i]['first_name'].'</span></p>
+                                        <p>Address: <span>'.$kins['kins'][$i]['address'].'</span></p>
+                                        <p>Phone Number:  <span>'.$kins['kins'][$i]['phone_number'].'</span></p>
+                                        </div>';
+                }
+                ?>
+            </div>
+        </div>
     </div>
+
 </div>
 <script type="text/javascript">
     $(document).ready(function(){

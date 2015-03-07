@@ -9,7 +9,7 @@ function register($name,$email,$password,$phone,$service,$address,$latitude,$lon
             $_SESSION['authorized'] = 1;
             $_SESSION['privilege'] = "provider";
             $_SESSION['email'] = $email;
-            header('Location: ./provider.php');
+            header('Location: ./dashboard.php');
             exit();
         } elseif ($create == EMAIL_ALREADY_EXISTS) {
             $_SESSION['error'] = 'Email Already Exists';
@@ -29,7 +29,7 @@ function login($email,$password) {
             $_SESSION['authorized'] = 1;
             $_SESSION['privilege'] = "provider";
             $_SESSION['email'] = $email;
-            header('Location: ./provider.php');
+            header('Location: ./dashboard.php');
             exit();
         } else {
             $_SESSION['error'] = 'Incorrect Credentials. Please Try Again';

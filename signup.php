@@ -4,7 +4,7 @@ include_once('include/functions.php');
 
 if(logged_in()) {
     if(isProvider()) {
-        header('Location: ./provider.php');
+        header('Location: ./dashboard.php');
     }
 }
 

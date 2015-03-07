@@ -139,6 +139,9 @@ $app->post('/deletekins', 'authenticate', 'deleteKins');
 $app->post('/requestservice', 'authenticate', 'requestService');
 $app->post('/selectprovider', 'authenticate', 'selectProvider');
 $app->post('/cancelrequest', 'authenticate', 'cancelRequest');
+$app->post('/getnewproviders', 'authenticate', 'getNewProviders');
+$app->post('/getonenewprovider', 'authenticate', 'getOneNewProvider');
+$app->post('/allrequests', 'authenticate', 'getAllRequests');
 $app->post('/review', 'authenticate', 'review');
 
 
@@ -380,6 +383,76 @@ function cancelRequest() {
         $response['error'] = FALSE;
         $response['request_id'] = $requestId;
         $response['message'] = "Your Request has been Cancelled";
+    } else {
+        // unknown error occurred
+        $response['error'] = TRUE;
+        $response['message'] = "An error occurred. Please try again";
+    }
+    echoRespnse(200, $response);
+}
+
+function getNewProviders() {
+    //global $app;
+    $app = \Slim\Slim::getInstance();
+    verifyRequiredParams(array('request_id'));
+
+    $req = $app->request(); // Getting parameters
+    $requestId = $req->params('request_id');
+
+    $apikey = $app->request->params('apikey');
+    $db = new DbHandler();
+    $userId = $db->getUserId($apikey);
+    $response = array();
+    $returnValue = $db->getNewProviders($requestId,$userId);
+
+    if ($returnValue != NULL) {
+        $response = $returnValue;
+    } else {
+        // unknown error occurred
+        $response['error'] = TRUE;
+        $response['message'] = "An error occurred. Please try again";
+    }
+    echoRespnse(200, $response);
+}
+
+function getOneNewProvider() {
+    //global $app;
+    $app = \Slim\Slim::getInstance();
+    verifyRequiredParams(array('request_id','provider_id'));
+
+    $req = $app->request(); // Getting parameters
+    $requestId = $req->params('request_id');
+    $providerId = $req->params('provider_id');
+
+    $apikey = $app->request->params('apikey');
+    $db = new DbHandler();
+    $userId = $db->getUserId($apikey);
+    $response = array();
+    $returnValue = $db->getOneNewProvider($userId,$requestId,$providerId);
+
+    if ($returnValue != NULL) {
+        $response = $returnValue;
+    } else {
+        // unknown error occurred
+        $response['error'] = TRUE;
+        $response['message'] = "An error occurred. Please try again";
+    }
+    echoRespnse(200, $response);
+}
+
+function getAllRequests() {
+    //global $app;
+    $app = \Slim\Slim::getInstance();
+    //$req = $app->request(); // Getting parameters
+
+    $apikey = $app->request->params('apikey');
+    $db = new DbHandler();
+    $userId = $db->getUserId($apikey);
+    $response = array();
+    $returnValue = $db->getAllRequests($userId);
+
+    if ($returnValue != NULL) {
+        $response = $returnValue;
     } else {
         // unknown error occurred
         $response['error'] = TRUE;

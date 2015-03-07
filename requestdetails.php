@@ -93,7 +93,7 @@ if(isset($_GET['logout'])){
         <div class="collapse navbar-collapse pull-right" id="bs-example-navbar-collapse-1">
             <ul class="nav navbar-nav">
                 <li>
-                    <a href="provider.php">Dashboard</a>
+                    <a href="dashboard.php">Dashboard</a>
                 </li>
                 <li>
                     <a href="editprovider.php">Edit Profile</a>

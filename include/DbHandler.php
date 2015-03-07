@@ -656,6 +656,108 @@ class DbHandler {
         }
     }
 
+    public function getNewProviders($requestId,$userId) {
+        $sql = "SELECT `latitude`, `longitude`, `address`, `service_type_id` FROM `requests` WHERE `request_id` = :request_id AND `user_id` = :user_id AND `active_status` = 1";
+        try {
+            $stmt = $this->conn->prepare($sql);
+            $stmt->bindParam("request_id", $requestId);
+            $stmt->bindParam("user_id", $userId);
+            $stmt->execute();
+            $pro = $stmt->fetch(PDO::FETCH_ASSOC);
+            $value = $this->getProviders($pro['longitude'],$pro['latitude'],$pro['address'],$pro['service_type_id']);
+            return $value;
+        } catch(PDOException $e) {
+            echo '{"error":{"text":'. $e->getMessage() .'}}';
+        }
+    }
+
+    public function getOneNewProvider($userId,$requestId,$providerId) {
+        $sql = "INSERT INTO `request_checks` (`request_id`, `provider_id`, `request_status_id`, `created_time`) VALUES (:request_id, :provider_id, 1, NOW())";
+        try {
+
+            $stmt = $this->conn->prepare($sql);
+            $stmt->bindParam("request_id", $requestId);
+            $stmt->bindParam("provider_id", $providerId);
+            //$stmt->bindParam("request_status_id", 1);
+            $stmt->execute();
+            $check_id = $this->conn->lastInsertId();
+
+            $sql = 'SELECT request_checks.created_time AS `request_date`,
+                          request_statuses.name AS `service_status`,
+                          service_types.name AS `service_type`,
+                         providers.name, providers.address, providers.phone_number
+                FROM `request_checks`, `requests`, `request_statuses`, `providers`, `service_types`
+                WHERE requests.request_id = request_checks.request_id AND
+                 request_checks.request_id = :reqId AND request_checks.provider_id = providers.provider_id AND
+                  requests.service_type_id = service_types.service_type_id AND
+                   request_checks.request_status_id = request_statuses.request_status_id AND
+                    requests.active_status = 1';
+            try {
+                $stmt = $this->conn->prepare($sql);
+                $stmt->bindParam("reqId", $requestId);
+                $stmt->execute();
+                $request  = $stmt->fetch(PDO::FETCH_ASSOC);
+                //$postsArr = objectToArray($posts);
+                $this->sendNotification($providerId,$userId, $requestId, 3);
+                $sendEmail = new SendGridEmail();
+                $sendEmail->sendEmergencyEmail($this->getProviderEmailById($providerId),$this->getUserEmailById($userId));
+                //$this->sendEmergencyEmail($this->getProviderEmailById($providerId),$this->getUserEmailById($userId));
+                $response['error'] = FALSE;
+                $response['request_id'] = $requestId;
+                $response['provider_id'] = $providerId;
+                $response['request_message'] = "Request for ".$request['service_type']." Service";
+                $response['request_status'] = $request['service_status'];
+                $response['request_date'] = $request['request_date'];
+                $response['provider_name'] = $request['name'];
+                $response['provider_address'] = $request['address'];
+                $response['provider_number'] = $request['phone_number'];
+                return $response;
+//                    return $arr;
+            } catch(PDOException $e) {
+                echo '{"error":{"text":'. $e->getMessage() .'}}';
+            }
+
+
+        } catch(PDOException $e) {
+
+            echo '{"error":{"text":'. $e->getMessage() .'}}';
+        }
+    }
+
+    public function getAllRequests($userId) {
+        $sql = 'SELECT requests.request_id, request_checks.created_time AS `request_date`,
+                          request_statuses.name AS `service_status`,
+                          service_types.name AS `service_type`,
+                         providers.provider_id, providers.name, providers.address, providers.phone_number
+                FROM `request_checks`, `requests`, `request_statuses`, `providers`, `service_types`
+                WHERE requests.request_id = request_checks.request_id AND
+                 requests.user_id = :userId AND request_checks.provider_id = providers.provider_id AND
+                  requests.service_type_id = service_types.service_type_id AND
+                   request_checks.request_status_id = request_statuses.request_status_id AND
+                    requests.active_status = 1';
+        try {
+            $stmt = $this->conn->prepare($sql);
+            $stmt->bindParam("userId", $userId);
+            $stmt->execute();
+            $request  = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            $response['error'] = FALSE;
+            $response['count'] = count($request);
+            $response['requests'] = $request;
+//            $response['request_id'] = $request['request_id'];
+//            $response['provider_id'] = $request['provider_id'];
+//            $response['request_message'] = "Request for ".$request['service_type']." Service";
+//            $response['request_status'] = $request['service_status'];
+//            $response['request_date'] = $request['request_date'];
+//            $response['provider_name'] = $request['name'];
+//            $response['provider_address'] = $request['address'];
+//            $response['provider_number'] = $request['phone_number'];
+            return $response;
+//                    return $arr;
+        } catch(PDOException $e) {
+            echo '{"error":{"text":'. $e->getMessage() .'}}';
+        }
+    }
+
     public function addReview($userId,$requestId, $providerId, $rating, $comment) {
         if ($rating=="") {$rating = 0;}
         $sql = "INSERT INTO `reviews` (`user_id`, `request_id`, `provider_id`,`rating`, `comment`, `created_time`) VALUES (:userId, :request_id, :provider_id, :rating, :comment, NOW())";

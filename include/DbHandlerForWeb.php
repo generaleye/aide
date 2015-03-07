@@ -403,10 +403,6 @@ class DbHandlerForWeb {
                   request_checks.request_status_id = request_statuses.request_status_id AND
                    requests.service_status_id = service_statuses.service_status_id AND
                     requests.active_status = 1';
-
-//        $sqler = "SELECT auth_members.id, staff.title, staff.first_name, staff.middle_name, staff.last_name, auth_members.username, auth_members.active_status
-//                FROM `staff`, `auth_members`
-//                WHERE auth_members.privilege='sub_admin' AND auth_members.staff_id=staff.id";
         try {
             $stmt = $this->conn->prepare($sql);
             $stmt->bindParam("id", $id);

@@ -213,9 +213,8 @@ function addKins() {
     $kin = $db->addKins($userId, $fname, $lname, $phone, $address, $email);
 
     $response = array();
-    if ($kin == TRUE) {
-        $response["error"] = FALSE;
-        $response['message'] = "Your Next of Kin has been Added";
+    if ($kin['error'] == FALSE) {
+        $response = $kin;
     } else {
         $response['error'] = TRUE;
         $response['message'] = "An error occurred. Please try again";

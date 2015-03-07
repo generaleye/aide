@@ -305,7 +305,11 @@ class DbHandler {
             $stmt->bindParam("address", $address);
             $stmt->bindParam("email", $email);
             $stmt->execute();
-            return TRUE;
+            $kin_id = $this->conn->lastInsertId();
+            $response['error']=FALSE;
+            $response['kin_id']=$kin_id;
+            $response['message'] = "Your Next of Kin has been Added";
+            return $response;
         } catch(PDOException $e) {
             echo '{"error":{"text":'. $e->getMessage() .'}}';
         }
@@ -569,16 +573,45 @@ class DbHandler {
                 $stmt->bindParam("provider_id", $providerId);
                 //$stmt->bindParam("request_status_id", 1);
                 $stmt->execute();
+                $check_id = $this->conn->lastInsertId();
                 $this->conn->commit();
 
-                $this->sendNotification($providerId,$userId, $requestId, 3);
-                $sendEmail = new SendGridEmail();
-                $sendEmail->sendEmergencyEmail($this->getProviderEmailById($providerId),$this->getUserEmailById($userId));
-                //$this->sendEmergencyEmail($this->getProviderEmailById($providerId),$this->getUserEmailById($userId));
-                $response['error'] = FALSE;
-                $response['request_id'] = $requestId;
-                $response['message'] = "Your Request has been sent";
-                return $response;
+                $sql = 'SELECT request_checks.created_time AS `request_date`,
+                          request_statuses.name AS `service_status`,
+                          service_types.name AS `service_type`,
+                         providers.name, providers.address, providers.phone_number
+                FROM `request_checks`, `requests`, `request_statuses`, `providers`, `service_types`
+                WHERE requests.request_id = request_checks.request_id AND
+                 request_checks.request_id = :reqId AND request_checks.provider_id = providers.provider_id AND
+                  requests.service_type_id = service_types.service_type_id AND
+                   request_checks.request_status_id = request_statuses.request_status_id AND
+                    requests.active_status = 1';
+                try {
+                    $stmt = $this->conn->prepare($sql);
+                    $stmt->bindParam("reqId", $requestId);
+                    $stmt->execute();
+                    $request  = $stmt->fetch(PDO::FETCH_ASSOC);
+                    //$postsArr = objectToArray($posts);
+                    $this->sendNotification($providerId,$userId, $requestId, 3);
+                    $sendEmail = new SendGridEmail();
+                    $sendEmail->sendEmergencyEmail($this->getProviderEmailById($providerId),$this->getUserEmailById($userId));
+                    //$this->sendEmergencyEmail($this->getProviderEmailById($providerId),$this->getUserEmailById($userId));
+                    $response['error'] = FALSE;
+                    $response['request_id'] = $requestId;
+                    $response['provider_id'] = $providerId;
+                    $response['request_message'] = "Request for ".$request['service_type']." Service";
+                    $response['request_status'] = $request['service_status'];
+                    $response['request_date'] = $request['request_date'];
+                    $response['provider_name'] = $request['name'];
+                    $response['provider_address'] = $request['address'];
+                    $response['provider_number'] = $request['phone_number'];
+                    return $response;
+//                    return $arr;
+                } catch(PDOException $e) {
+                    echo '{"error":{"text":'. $e->getMessage() .'}}';
+                }
+
+
             } catch(PDOException $e) {
 
                 echo '{"error":{"text":'. $e->getMessage() .'}}';

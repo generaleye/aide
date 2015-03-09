@@ -202,6 +202,8 @@ ADD CONSTRAINT `fk_notifications_own_id` FOREIGN KEY (`own_id`) REFERENCES `prov
 ADD CONSTRAINT `fk_notifications_sub_id` FOREIGN KEY (`sub_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE,
 ADD CONSTRAINT `fk_notification_type_id` FOREIGN KEY (`notification_type_id`) REFERENCES `notification_types` (`notification_type_id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
+ALTER TABLE  `notifications` ADD  `status` VARCHAR( 6 ) NOT NULL DEFAULT  'unseen' AFTER  `notification_type_id` ;
+
 ALTER TABLE `providers`
 ADD CONSTRAINT `fk_providers_service_type_id` FOREIGN KEY (`service_type_id`) REFERENCES `service_types` (`service_type_id`) ON DELETE CASCADE ON UPDATE CASCADE;
 

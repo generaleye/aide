@@ -115,27 +115,29 @@ if(isset($_GET['logout'])){
 <div id="container" style="padding-top: 70px">
 
     <div class="col-md-12">
+        <div class="col-md-offset-1 col-md-10 col-md-offset-1">
         <div class="row">
-            <div class="col-md-8 col-xs-12">
-                <div id="map-canvas" class="center"></div>
-            </div>
-            <div class="col-md-4 col-xs-12 border-left">
-                <div class="row">
-                    <img src="badass smiley.jpg" class="img-thumbnail center" width="150px" height="150px" />
+
+                <div class="col-md-8 col-xs-12">
+                    <div id="map-canvas" class="center"></div>
                 </div>
-                <br/>
-                <div class="row">
-                    <p class="info-header">Name:<h5 class="center-text"><?php echo strtoupper($requestArr['last_name']).' '.$requestArr['first_name']; ?></h5></p>
+                <div class="col-md-4 col-xs-12 border-left">
+                    <div class="row">
+                        <img src="badass smiley.jpg" class="img-thumbnail center" width="150px" height="150px" />
+                    </div>
+                    <br/>
+                    <div class="row">
+                        <p class="info-header">Name:<h5 class="center-text"><?php echo strtoupper($requestArr['last_name']).' '.$requestArr['first_name']; ?></h5></p>
+                    </div>
+                    <hr/>
+                    <div class="row">
+                        <p class="info-header">Address:<h5 class="center-text"><?php echo $requestArr['address'] ?></h5></p>
+                    </div>
+                    <hr/>
+                    <div class="row">
+                        <p class="info-header">Phone Number:<h5 class="center-text"><?php echo $requestArr['phone_number']; ?></h5></p>
+                    </div>
                 </div>
-                <hr/>
-                <div class="row">
-                    <p class="info-header">Address:<h5 class="center-text"><?php echo $requestArr['address'] ?></h5></p>
-                </div>
-                <hr/>
-                <div class="row">
-                    <p class="info-header">Phone Number:<h5 class="center-text"><?php echo $requestArr['phone_number']; ?></h5></p>
-                </div>
-            </div>
 
         </div>
         <div class="row">
@@ -184,6 +186,7 @@ if(isset($_GET['logout'])){
                 }
                 ?>
             </div>
+        </div>
         </div>
     </div>
 
@@ -298,8 +301,8 @@ if(isset($_GET['logout'])){
         var a = ["<?php echo $lat?>","<?php echo $lon?>"];
         var myLatLng = new google.maps.LatLng(a[0], a[1]);
             var request = {
-                origin: myLatLng,
-                destination: chicago,
+                origin: chicago,
+                destination: myLatLng,
                 travelMode: google.maps.TravelMode.DRIVING
             };
             directionsService.route(request, function(response, status) {

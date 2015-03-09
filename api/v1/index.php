@@ -143,7 +143,7 @@ $app->post('/getnewproviders', 'authenticate', 'getNewProviders');
 $app->post('/getonenewprovider', 'authenticate', 'getOneNewProvider');
 $app->post('/allrequests', 'authenticate', 'getAllRequests');
 $app->post('/review', 'authenticate', 'review');
-
+$app->post('/anonymous', 'anonymousRequest');
 
 $app->run();
 
@@ -488,6 +488,9 @@ function review() {
     echoRespnse(200, $response);
 }
 
+function anonymousRequest() {
+    $app = \Slim\Slim::getInstance();
+}
 
 // function objectToArray($d) {
 //         if (is_object($d)) {

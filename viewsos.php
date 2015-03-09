@@ -37,6 +37,7 @@ if(isset($_GET['request']) && !(empty($_GET['request']))) {
     <meta name="author" content="">
 
     <title>Aide</title>
+    <link rel="shortcut icon" type="image/ico" href="images/logo.png" />
     <link href="css/normalize.css" rel="stylesheet">
     <link href="css/bootstrap.min.css" rel="stylesheet">
     <link href="css/style.css" rel="stylesheet">
@@ -83,12 +84,12 @@ if(isset($_GET['request']) && !(empty($_GET['request']))) {
         <!-- Collect the nav links, forms, and other content for toggling -->
         <div class="collapse navbar-collapse pull-right" id="bs-example-navbar-collapse-1">
             <ul class="nav navbar-nav">
-                <li>
-                    <a href="#">About</a>
-                </li>
-                <li>
-                    <a href="#">Services</a>
-                </li>
+<!--                <li>-->
+<!--                    <a href="#">About</a>-->
+<!--                </li>-->
+<!--                <li>-->
+<!--                    <a href="#">Services</a>-->
+<!--                </li>-->
                 <li>
                     <a href="./signup.php">Login / Register</a>
                 </li>

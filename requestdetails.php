@@ -46,6 +46,7 @@ if(isset($_GET['logout'])){
     <meta name="author" content="">
 
     <title>Aide</title>
+    <link rel="shortcut icon" type="image/ico" href="images/logo.png" />
     <link href="css/normalize.css" rel="stylesheet">
     <link href="css/bootstrap.min.css" rel="stylesheet">
     <link href="css/style.css" rel="stylesheet">

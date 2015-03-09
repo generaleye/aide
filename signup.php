@@ -30,6 +30,7 @@ if (isset($_POST['register'])) {
     <meta name="author" content="">
 
     <title>Aide</title>
+    <link rel="shortcut icon" type="image/ico" href="images/logo.png" />
     <link href="css/bootstrap.min.css" rel="stylesheet">
     <link href="css/style.css" rel="stylesheet">
 

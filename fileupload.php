@@ -1,5 +1,12 @@
 <?php
 
+if ($_SERVER["SERVER_NAME"]=="aide-generaleye.rhcloud.com") {
+    echo $OPENSHIFT_DATA_DIR;
+
+    $env_var = getenv('OPENSHIFT_ENV_VAR');
+    echo $env_var;
+}
+
 // Path to move uploaded files
 $target_path = "uploads/";
 

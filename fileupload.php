@@ -17,7 +17,7 @@ $response = array();
 $server_ip = gethostbyname(gethostname());
 echo $server_ip;
 // final file url that is being uploaded
-$file_upload_url = 'http://' . $_SERVER["SERVER_NAME"] . '/' . 'aide' . '/' . $target_path;
+$file_upload_url = 'https://' . $_SERVER["SERVER_NAME"] . '/' . 'aide' . '/' . $target_path;
 echo $file_upload_url;
 
 if (isset($_FILES['image']['name'])) {

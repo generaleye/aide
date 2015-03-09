@@ -10,6 +10,8 @@ if(isset($_GET['request']) && !(empty($_GET['request']))) {
     $req = $_GET['request'];
     $db = new DbHandlerForWeb();
     $requestArr = $db->getRequest($req,$_SESSION['email']);
+    $providerLoc = $db->getProvidersLocation($_SESSION['email']);
+    //print_r($providerLoc);
     //print_r($requestArr);
     if(count($requestArr) != 1) {
         $lat = $requestArr['latitude'];
@@ -18,6 +20,9 @@ if(isset($_GET['request']) && !(empty($_GET['request']))) {
         $lname = $requestArr['last_name'];
         $address = $requestArr['address'];
         $phone = $requestArr['phone_number'];
+
+        $pLat = $providerLoc['latitude'];
+        $pLon = $providerLoc['longitude'];
     }else {
         header('HTTP/1.0 404 Not Found');
         include "./404.php";
@@ -46,7 +51,6 @@ if(isset($_GET['logout'])){
     <meta name="author" content="">
 
     <title>Aide</title>
-    <link rel="shortcut icon" type="image/ico" href="images/logo.png" />
     <link href="css/normalize.css" rel="stylesheet">
     <link href="css/bootstrap.min.css" rel="stylesheet">
     <link href="css/style.css" rel="stylesheet">
@@ -260,7 +264,14 @@ if(isset($_GET['logout'])){
 <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAq-qALg5CO4EPfaV0kgcqTjlCp9oVriVc">
 </script>
 <script type="text/javascript">
+    var directionsDisplay;
+    var directionsService = new google.maps.DirectionsService();
+
     function initialize() {
+        directionsDisplay = new google.maps.DirectionsRenderer();
+
+        //var chicago = new google.maps.LatLng(41.850033, -87.6500523);
+
         var a = ["<?php echo $lat?>","<?php echo $lon?>"];
         var myLatLng = new google.maps.LatLng(a[0], a[1]);
         var mapOptions = {
@@ -270,12 +281,46 @@ if(isset($_GET['logout'])){
         var map = new google.maps.Map(document.getElementById('map-canvas'),
             mapOptions);
 
-        var marker = new google.maps.Marker({
-            position: myLatLng,
-            map:map,
-            title:"Last Known Location"
+        directionsDisplay.setMap(map);
+
+//        var marker = new google.maps.Marker({
+//            position: myLatLng,
+//            map:map,
+//            title:"Last Known Location"
+//        });
+
+//        function calcRoute() {
+//            var start = document.getElementById('start').value;
+//            var end = document.getElementById('end').value;
+        var chicago = new google.maps.LatLng("<?php echo $pLat; ?>","<?php echo $pLon; ?>");
+
+        //console.log("knk"+"<?php echo $pLat; ?>","<?php echo $pLon; ?>");
+        var a = ["<?php echo $lat?>","<?php echo $lon?>"];
+        var myLatLng = new google.maps.LatLng(a[0], a[1]);
+            var request = {
+                origin: myLatLng,
+                destination: chicago,
+                travelMode: google.maps.TravelMode.DRIVING
+            };
+            directionsService.route(request, function(response, status) {
+                if (status == google.maps.DirectionsStatus.OK) {
+                    directionsDisplay.setDirections(response);
+                    //console.log("successsss");
+                    var leg = response.routes[ 0 ].legs[ 0 ];
+                    makeMarker( leg.start_location, map, "title 1" );
+                    makeMarker( leg.end_location, map, 'title 2' );
+                }
+            });
+    }
+    function makeMarker( position, map, title ) {
+        new google.maps.Marker({
+            position: position,
+            map: map,
+            title: title
         });
     }
+//        }
+
     google.maps.event.addDomListener(window, 'load', initialize);
 </script>
 

@@ -390,6 +390,20 @@ class DbHandlerForWeb {
         }
     }
 
+    public function getProvidersLocation($email) {
+        $id = $this->getProviderByEmail($email)['provider_id'];
+        $sql = "SELECT `latitude`, `longitude` FROM `providers` WHERE `provider_id` =:id";
+        try {
+            $stmt = $this->conn->prepare($sql);
+            $stmt->bindParam("id", $id);
+            $stmt->execute();
+            $location = $stmt->fetch(PDO::FETCH_ASSOC);
+            return $location;
+        } catch(PDOException $e) {
+            echo '{"error":{"text":'. $e->getMessage() .'}}';
+        }
+    }
+
     public function getProvidersRequests($email) {
         $id = $this->getProviderByEmail($email)['provider_id'];
         $sql = 'SELECT requests.request_id,

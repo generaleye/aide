@@ -8,10 +8,10 @@ $response = array();
 
 // getting server ip address
 $server_ip = gethostbyname(gethostname());
-
+echo $server_ip;
 // final file url that is being uploaded
-$file_upload_url = 'http://' . $server_ip . '/' . 'aide' . '/' . $target_path;
-
+$file_upload_url = 'http://' . $_SERVER["SERVER_NAME"] . '/' . 'aide' . '/' . $target_path;
+echo $file_upload_url;
 
 if (isset($_FILES['image']['name'])) {
     $target_path = $target_path . basename($_FILES['image']['name']);
@@ -44,7 +44,7 @@ if (isset($_FILES['image']['name'])) {
 } else {
     // File parameter is missing
     $response['error'] = true;
-    $response['message'] = 'Not received any file!F';
+    $response['message'] = 'Not received any file!';
 }
 
 // Echo final json response to client

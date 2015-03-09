@@ -403,7 +403,7 @@ class DbHandlerForWeb {
                  request_checks.provider_id = :id AND requests.user_id = users.user_id AND
                   request_checks.request_status_id = request_statuses.request_status_id AND
                    requests.service_status_id = service_statuses.service_status_id AND
-                    requests.active_status = 1';
+                    requests.active_status = 1 ORDER BY requests.created_time DESC';
         try {
             $stmt = $this->conn->prepare($sql);
             $stmt->bindParam("id", $id);

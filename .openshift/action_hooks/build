@@ -1,0 +1,19 @@
+#!/bin/bash
+# This deploy hook gets executed after dependencies are resolved and the
+# build hook has been run but before the application has been started back
+# up again.  This script gets executed directly, so it could be python, php,
+# ruby, etc.
+# This script will create a permanent storage folder on openshift
+# put this in .openshift/action_hooks/build
+ 
+rm -rf $OPENSHIFT_REPO_DIR/uploads
+echo ".............pre_build............creating symlinks................."
+if [ ! -d "$OPENSHIFT_DATA_DIR/uploads" ]; then
+    mkdir $OPENSHIFT_DATA_DIR/uploads
+    echo directory made.
+fi
+ln -sf $OPENSHIFT_DATA_DIR/uploads $OPENSHIFT_REPO_DIR/uploads
+echo ".................creating symlinks completed........................"
+ 
+ 
+##source: https://www.openshift.com/forums/openshift/one-newbie-question

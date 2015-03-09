@@ -482,9 +482,9 @@ class DbHandler {
         if ($longitude!="" && $latitude!="") {
             $latLon = new LatLong($latitude,$longitude);
             $leng = 0;
-            $radius = 50;
+            $radius = 60;
             while ($leng == 0) {
-                if ($radius >= 100) {
+                if ($radius >= 120) {
                     $response['error'] = TRUE;
                     $response['count'] = 0;
                     $response['providers'] = [];

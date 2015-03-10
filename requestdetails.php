@@ -221,7 +221,7 @@ if(isset($_GET['logout'])){
             success: function(data){
                 con = data;
                 $("tbody").html(con);
-                console.log(con);
+                //console.log(con);
             },
             error: function(xhr, desc, err) {
                 console.log(xhr);
@@ -240,7 +240,7 @@ if(isset($_GET['logout'])){
                 data: "request=<?php echo $requestArr['request_id']; ?>&provider=<?php echo $_SESSION['email']; ?>&comment="+comment+"&methods=chat",
                 success: function(data){
                     $("tbody").html(con);
-                    console.log(data);
+                    //console.log(data);
                 },
                 error: function(xhr, desc, err){
                     alert("Failure! Please Try Again");

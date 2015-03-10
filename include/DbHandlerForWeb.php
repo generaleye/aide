@@ -649,8 +649,10 @@ class DbHandlerForWeb {
             $stmt->bindParam("requestId", intval($request));
             $stmt->execute();
 
+            $no=1;
             while ($content = $stmt->fetch(PDO::FETCH_ASSOC)) {
-                echo '<tr><td>S/N</td><td>'.$content['comment'].'</td><td>'.$content['created_time'].'</td></tr>';
+                echo '<tr><td>'.$no.'</td><td>'.$content['comment'].'</td><td>'.$content['created_time'].'</td></tr>';
+                $no++;
             }
 
             return TRUE;

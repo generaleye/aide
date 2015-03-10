@@ -627,7 +627,7 @@ class DbHandlerForWeb {
             $gcm->send();
             $date = date('Y-m-d H:i:s');
 
-            echo '<tr><td>S/N</td><td>'.$comment.'</td><td>'.$date.'</td></tr>';
+            $this->populateChat($request,$email);
 
             return TRUE;
         } catch(PDOException $e) {

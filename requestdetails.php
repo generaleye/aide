@@ -239,7 +239,7 @@ if(isset($_GET['logout'])){
                 timeout: 20000,
                 data: "request=<?php echo $requestArr['request_id']; ?>&provider=<?php echo $_SESSION['email']; ?>&comment="+comment+"&methods=chat",
                 success: function(data){
-                    $("tbody").prepend(con);
+                    $("tbody").html(con);
                     console.log(data);
                 },
                 error: function(xhr, desc, err){

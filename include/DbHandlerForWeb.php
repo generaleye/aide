@@ -7,6 +7,7 @@
 
 if(isset($_POST['methods'])) {
     require_once ('GoogleGCMApi.php');
+    require_once ('EbulkSmsApi.php');
     $db = new DbHandlerForWeb();
     switch ($_POST['methods']) {
         case "approveRequest":
@@ -434,7 +435,7 @@ class DbHandlerForWeb {
 
     public function getRequest($id,$email) {
         $provider = $this->getProviderByEmail($email)['provider_id'];
-        $sql = 'SELECT requests.request_id, requests.user_id, requests.latitude, requests.longitude, requests.device_id,
+        $sql = 'SELECT requests.request_id, requests.user_id, requests.latitude, requests.longitude, requests.device_id, requests.address AS `anonymous_phone`,
                 request_checks.request_id AS `checks_request_id`,
                 request_checks.request_status_id AS `statuses_request_status_id`, request_statuses.name AS `request_statuses_name`,
                  service_statuses.service_status_id AS `statuses_service_status_id`, service_statuses.name AS `service_statuses_name`,
@@ -505,9 +506,17 @@ class DbHandlerForWeb {
             $stmt->bindParam("provider", intval($provider));
             $stmt->execute();
 
-            $device = $this->getDeviceIdFromRequests($request);
-            $gcm = new GoogleGCMApi($device,"".json_encode(array('request_id'=>$request,'type'=>"approve",'message'=>"Your Request has been Approved"))."");
-            $gcm->send();
+            if ($this->getUserInfoFromRequests($request)['user_id']==1) {
+                $num = $this->getUserInfoFromRequests($request)['address'];
+                //send a text message to an anonymous user
+                $ebulk = new EbulkSmsApi();
+                $ebulk->sendText($num,"Hello, Anonymous User. Your Request has been Approved");
+
+            } else {
+                $device = $this->getDeviceIdFromRequests($request);
+                $gcm = new GoogleGCMApi($device, "" . json_encode(array('request_id' => $request, 'type' => "approve", 'message' => "Your Request has been Approved")) . "");
+                $gcm->send();
+            }
             return TRUE;
         } catch(PDOException $e) {
             echo '{"error":{"text":'. $e->getMessage() .'}}';
@@ -523,9 +532,17 @@ class DbHandlerForWeb {
             $stmt->bindParam("provider", intval($provider));
             $stmt->execute();
 
-            $device = $this->getDeviceIdFromRequests($request);
-            $gcm = new GoogleGCMApi($device,"".json_encode(array('request_id'=>$request,'type'=>"decline",'message'=>"Your Request has been Declined"))."");
-            $gcm->send();
+            if ($this->getUserInfoFromRequests($request)['user_id']==1) {
+                $num = $this->getUserInfoFromRequests($request)['address'];
+                //send a text message to an anonymous user
+                $ebulk = new EbulkSmsApi();
+                $ebulk->sendText($num,"Hello, Anonymous User. Your Request has been Declined");
+
+            } else {
+                $device = $this->getDeviceIdFromRequests($request);
+                $gcm = new GoogleGCMApi($device, "" . json_encode(array('request_id' => $request, 'type' => "decline", 'message' => "Your Request has been Declined")) . "");
+                $gcm->send();
+            }
             return TRUE;
         } catch(PDOException $e) {
             echo '{"error":{"text":'. $e->getMessage() .'}}';
@@ -539,9 +556,17 @@ class DbHandlerForWeb {
             $stmt->bindParam("request", intval($request));
             $stmt->execute();
 
-            $device = $this->getDeviceIdFromRequests($request);
-            $gcm = new GoogleGCMApi($device,"".json_encode(array('request_id'=>$request,'type'=>"complete",'message'=>"Your Request has been Completed"))."");
-            $gcm->send();
+            if ($this->getUserInfoFromRequests($request)['user_id']==1) {
+                $num = $this->getUserInfoFromRequests($request)['address'];
+                //send a text message to an anonymous user
+                $ebulk = new EbulkSmsApi();
+                $ebulk->sendText($num,"Hello, Anonymous User. Your Request has been Completed");
+
+            } else {
+                $device = $this->getDeviceIdFromRequests($request);
+                $gcm = new GoogleGCMApi($device, "" . json_encode(array('request_id' => $request, 'type' => "complete", 'message' => "Your Request has been Completed")) . "");
+                $gcm->send();
+            }
             return TRUE;
         } catch(PDOException $e) {
             echo '{"error":{"text":'. $e->getMessage() .'}}';
@@ -556,9 +581,17 @@ class DbHandlerForWeb {
             $stmt->bindParam("provider", intval($provider));
             $stmt->execute();
 
-            $device = $this->getDeviceIdFromRequests($request);
-            $gcm = new GoogleGCMApi($device,"".json_encode(array('request_id'=>$request,'type'=>"abort",'message'=>"Your Request has been Aborted"))."");
-            $gcm->send();
+            if ($this->getUserInfoFromRequests($request)['user_id']==1) {
+                $num = $this->getUserInfoFromRequests($request)['address'];
+                //send a text message to an anonymous user
+                $ebulk = new EbulkSmsApi();
+                $ebulk->sendText($num,"Hello, Anonymous User. Your Request has been Aborted");
+
+            } else {
+                $device = $this->getDeviceIdFromRequests($request);
+                $gcm = new GoogleGCMApi($device, "" . json_encode(array('request_id' => $request, 'type' => "abort", 'message' => "Your Request has been Aborted")) . "");
+                $gcm->send();
+            }
             return TRUE;
         } catch(PDOException $e) {
             echo '{"error":{"text":'. $e->getMessage() .'}}';
@@ -573,6 +606,19 @@ class DbHandlerForWeb {
             $stmt->execute();
             $device = $stmt->fetch(PDO::FETCH_ASSOC);
             return $device['device_id'];
+        } catch(PDOException $e) {
+            echo '{"error":{"text":'. $e->getMessage() .'}}';
+        }
+    }
+
+    public function getUserInfoFromRequests($id) {
+        $sql = "SELECT `user_id`, `address` FROM `requests` WHERE `request_id` =:id";
+        try {
+            $stmt = $this->conn->prepare($sql);
+            $stmt->bindParam("id", $id);
+            $stmt->execute();
+            $device = $stmt->fetch(PDO::FETCH_ASSOC);
+            return $device;
         } catch(PDOException $e) {
             echo '{"error":{"text":'. $e->getMessage() .'}}';
         }

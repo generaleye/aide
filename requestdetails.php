@@ -131,11 +131,11 @@ if(isset($_GET['logout'])){
                     </div>
                     <hr/>
                     <div class="row">
-                        <p class="info-header">Address:<h5 class="center-text"><?php echo $requestArr['address'] ?></h5></p>
+                        <p class="info-header">Address:<h5 class="center-text"><?php echo $requestArr['address']; ?></h5></p>
                     </div>
                     <hr/>
                     <div class="row">
-                        <p class="info-header">Phone Number:<h5 class="center-text"><?php echo $requestArr['phone_number']; ?></h5></p>
+                        <p class="info-header">Phone Number:<h5 class="center-text"><?php echo ($requestArr['user_id']== 1 ? $requestArr['anonymous_phone'] : $requestArr['phone_number']); ?></h5></p>
                     </div>
                 </div>
 
@@ -199,9 +199,10 @@ if(isset($_GET['logout'])){
                 url: "include/DbHandlerForWeb.php",
                 timeout: 20000,
                 data: "request=<?php echo $requestArr['request_id']; ?>&provider=<?php echo $_SESSION['email']; ?>&methods=approveRequest",
-                success: function(){
+                success: function(data){
                     $('#new-button-div').css('display','none');
                     $('#old-button-div').css('display','block');
+                    console.log(data);
                 },
                 error: function(xhr, desc, err){
                     alert("Failure! Please Try Again");

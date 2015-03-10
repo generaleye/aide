@@ -104,6 +104,7 @@ if(isset($_GET['logout'])){
     </nav>
 
     <div class="container">
+        <?php echo "Welcome ".$_SESSION['email'] ?>
         <div class="row">
             <div class="col-md-12">
                 <div class="col-md-offset-1 col-md-10 col-md-offset-1">

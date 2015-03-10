@@ -22,6 +22,9 @@ if(isset($_POST['methods'])) {
         case "abortRequest":
             $db->abortRequest($_POST['request'],$_POST['provider']);
             break;
+        case "chat":
+            $db->chat($_POST['request'],$_POST['provider'],$_POST['comment']);
+            break;
         default:
             break;
     }
@@ -598,6 +601,34 @@ class DbHandlerForWeb {
         }
     }
 
+    public function chat($request,$email,$comment) {
+        $provider = $this->getProviderByEmail($email)['provider_id'];
+        $user = $this->getUserInfoFromRequests($request)['user_id'];
+        //$device = $this->getUserInfoFromRequests($request)['device_id'];
+        $sql = "INSERT INTO `request_chats` (`user_id`, `provider_id`, `request_id`, `comment`, `created_time`) VALUES
+                (:userId, :providerId, :requestId, :comment, NOW())";
+
+        //$sql = "UPDATE `request_checks` SET `request_status_id` = 4, `modified_time` = NOW() WHERE `request_id` = :request AND `provider_id` = :provider";
+        try {
+            $stmt = $this->conn->prepare($sql);
+            $stmt->bindParam("userId", intval($user));
+            $stmt->bindParam("providerId", intval($provider));
+            $stmt->bindParam("requestId", intval($request));
+            $stmt->bindParam("comment", $comment);
+            $stmt->execute();
+
+
+            $device = $this->getUserInfoFromRequests($request)['device_id'];
+            echo $device;
+            $gcm = new GoogleGCMApi($device, "" . json_encode(array('request_id' => $request, 'type' => "message", 'message' => $comment)) . "");
+            $gcm->send();
+
+            return TRUE;
+        } catch(PDOException $e) {
+            echo '{"error":{"text":'. $e->getMessage() .'}}';
+        }
+    }
+
     public function getDeviceIdFromRequests($id) {
         $sql = "SELECT `device_id` FROM `requests` WHERE `request_id` =:id";
         try {
@@ -612,7 +643,7 @@ class DbHandlerForWeb {
     }
 
     public function getUserInfoFromRequests($id) {
-        $sql = "SELECT `user_id`, `address` FROM `requests` WHERE `request_id` =:id";
+        $sql = "SELECT `user_id`, `device_id`, `address` FROM `requests` WHERE `request_id` =:id";
         try {
             $stmt = $this->conn->prepare($sql);
             $stmt->bindParam("id", $id);

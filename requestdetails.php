@@ -51,6 +51,7 @@ if(isset($_GET['logout'])){
     <meta name="author" content="">
 
     <title>Aide</title>
+    <link rel="shortcut icon" type="image/ico" href="images/logo.png" />
     <link href="css/normalize.css" rel="stylesheet">
     <link href="css/bootstrap.min.css" rel="stylesheet">
     <link href="css/style.css" rel="stylesheet">
@@ -191,10 +192,13 @@ if(isset($_GET['logout'])){
     </div>
     <div class=" chat-box col-md-offset-3 col-md-6 col-md-offset-3 col-xs-12">
         <table class="table table-striped table-bordered table-hover table-responsive">
-            <thead><tr><td>S/N</td><td>Comment</td><td>Date</td></tr></thead>
+            <thead>
+            <tr id="first-row"><td></td><td><form></form><input id="chat-text" class="col-md-12 form-control" type="text"/></td><td><button id="chatter" class="btn btn-info">Post</button></form></td></tr>
+                <tr><td>S/N</td><td>Comment</td><td>Date</td></tr>
+            </thead>
                 <tbody>
-                    <tr><td></td><td><form></form><input id="chat-text" class="col-md-12 form-control" type="text"/></td><td><button id="chatter" class="btn btn-info">Post</button></form></td></tr>
-                    <tr><td>S/N</td><td>Comment</td><td>Date</td></tr>
+
+<!--                    <tr><td>S/N</td><td>Comment</td><td>Date</td></tr>-->
                 </tbody>
         </table>
     </div>
@@ -208,18 +212,34 @@ if(isset($_GET['logout'])){
             }
         });
 
+        //Populate The Table
+        $.ajax({
+            type: "POST",
+            url: "include/DbHandlerForWeb.php",
+            timeout: 20000,
+            data: "request=<?php echo $requestArr['request_id']; ?>&provider=<?php echo $_SESSION['email']; ?>&methods=populateChat",
+            success: function(data){
+                con = data;
+                $("tbody").html(con);
+                console.log(con);
+            },
+            error: function(xhr, desc, err) {
+                console.log(xhr);
+                console.log("|Details: " + desc + "|Error: " + err);
+            }
+        });
+
         $("button#chatter").click(function(){
 
             var comment = $('#chat-text').val();
-            alert(comment);
+            //alert(comment);
             $.ajax({
                 type: "POST",
                 url: "include/DbHandlerForWeb.php",
                 timeout: 20000,
                 data: "request=<?php echo $requestArr['request_id']; ?>&provider=<?php echo $_SESSION['email']; ?>&comment="+comment+"&methods=chat",
                 success: function(data){
-                    //$('#new-button-div').css('display','none');
-                    //$('#old-button-div').css('display','block');
+                    $("tbody").prepend(con);
                     console.log(data);
                 },
                 error: function(xhr, desc, err){

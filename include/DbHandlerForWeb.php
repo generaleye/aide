@@ -25,6 +25,9 @@ if(isset($_POST['methods'])) {
         case "chat":
             $db->chat($_POST['request'],$_POST['provider'],$_POST['comment']);
             break;
+        case "populateChat":
+            $db->populateChat($_POST['request'],$_POST['provider']);
+            break;
         default:
             break;
     }
@@ -622,6 +625,33 @@ class DbHandlerForWeb {
             echo $device;
             $gcm = new GoogleGCMApi($device, "" . json_encode(array('request_id' => $request, 'type' => "message", 'message' => $comment)) . "");
             $gcm->send();
+            $date = date('Y-m-d H:i:s');
+
+            echo '<tr><td>S/N</td><td>'.$comment.'</td><td>'.$date.'</td></tr>';
+
+            return TRUE;
+        } catch(PDOException $e) {
+            echo '{"error":{"text":'. $e->getMessage() .'}}';
+        }
+    }
+
+    public function populateChat($request,$email) {
+        $provider = $this->getProviderByEmail($email)['provider_id'];
+        $user = $this->getUserInfoFromRequests($request)['user_id'];
+        //$device = $this->getUserInfoFromRequests($request)['device_id'];
+        $sql = "SELECT `comment`, `created_time` FROM `request_chats` WHERE `request_id` = :requestId AND `provider_id` = :providerId AND `user_id` = :userId ORDER BY `created_time` DESC";
+
+        //$sql = "UPDATE `request_checks` SET `request_status_id` = 4, `modified_time` = NOW() WHERE `request_id` = :request AND `provider_id` = :provider";
+        try {
+            $stmt = $this->conn->prepare($sql);
+            $stmt->bindParam("userId", intval($user));
+            $stmt->bindParam("providerId", intval($provider));
+            $stmt->bindParam("requestId", intval($request));
+            $stmt->execute();
+
+            while ($content = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                echo '<tr><td>S/N</td><td>'.$content['comment'].'</td><td>'.$content['created_time'].'</td></tr>';
+            }
 
             return TRUE;
         } catch(PDOException $e) {

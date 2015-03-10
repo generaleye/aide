@@ -130,6 +130,8 @@ $app->post('/login', function() use ($app) {
     echoRespnse(200, $response);
 });
 
+$app->post('/googleplus', 'googlePlus');
+
 $app->post('/getprofile', 'authenticate', 'getProfile');
 $app->post('/editprofile', 'authenticate', 'editProfile');
 $app->post('/addkins', 'authenticate', 'addKins');
@@ -143,9 +145,40 @@ $app->post('/getnewproviders', 'authenticate', 'getNewProviders');
 $app->post('/getonenewprovider', 'authenticate', 'getOneNewProvider');
 $app->post('/allrequests', 'authenticate', 'getAllRequests');
 $app->post('/review', 'authenticate', 'review');
-$app->post('/anonymous', 'anonymousRequest');
+$app->post('/getanonymousproviders', 'anonymousProviders');
+$app->post('/sendanonymousrequest', 'anonymousRequest');
 
 $app->run();
+
+function googlePlus() {
+    $app = \Slim\Slim::getInstance();
+    verifyRequiredParams(array('email'));
+    $req = $app->request(); // Getting parameters
+    $email = $req->params('email');
+
+    $db = new DbHandler();
+    $res = $db->googlePlus($email);
+    if ($res == REGISTRATION_SUCCESSFUL) {
+        $user = $db->getUserByEmail($email);
+
+        if ($user != NULL) {
+            $response["error"] = FALSE;
+            $response['email'] = $user['email_address'];
+            $response['api_key'] = $user['api_key'];
+            $response['created_time'] = $user['created_time'];
+            $response["message"] = "You have been successfully Logged-In";
+        } else {
+            // unknown error occurred
+            $response['error'] = TRUE;
+            $response['message'] = "An error occurred. Please try again";
+        }
+    } else if ($res == REGISTRATION_FAILED) {
+        $response["error"] = TRUE;
+        $response["message"] = "Oops! An error occurred while registering. Please try again";
+    }
+    // echo json response
+    echoRespnse(200, $response);
+}
 
 function getProfile() {
     global $app;
@@ -176,7 +209,7 @@ function editProfile() {
     //verifyRequiredParams(array('fname', 'lname', 'mname', 'description'));
 
     $req = $app->request(); // Getting parameters
-    $fname = $req  ->params('fname');
+    $fname = $req->params('fname');
     $lname = $req->params('lname');
     $sex = $req->params('sex');
     $phone = $req->params('phone');
@@ -488,8 +521,58 @@ function review() {
     echoRespnse(200, $response);
 }
 
-function anonymousRequest() {
+function anonymousProviders() {
     $app = \Slim\Slim::getInstance();
+    verifyRequiredParams(array('phone','type'));
+    $req = $app->request(); // Getting parameters
+    $phone = $req->params('phone');
+    $latitude = $req->params('latitude');
+    $longitude = $req->params('longitude');
+    $type = $req->params('type');
+
+    $db = new DbHandler();
+
+    $response = array();
+
+    $returnValue = $db->getProviders($longitude,$latitude,$phone,$type);
+
+    if ($returnValue != NULL) {
+        $response = $returnValue;
+    } else {
+        // unknown error occurred
+        $response['error'] = TRUE;
+        $response['message'] = "An error occurred. Please try again";
+    }
+    echoRespnse(200, $response);
+}
+
+function anonymousRequest() {
+    //global $app;
+    $app = \Slim\Slim::getInstance();
+    verifyRequiredParams(array('provider_id','type'));
+
+    $req = $app->request(); // Getting parameters
+    $providerId = $req->params('provider_id');
+    $latitude = $req->params('latitude');
+    $longitude = $req->params('longitude');
+    $phone = $req->params('phone');
+    $type = intval($req->params('type'));
+    $device_id = "";
+
+    //$apikey = $app->request->params('apikey');
+    $db = new DbHandler();
+    $userId = 1;
+    $response = array();
+    $returnValue = $db->selectProvider($userId,$device_id,$providerId,$longitude,$latitude,$phone,$type);
+
+    if ($returnValue != NULL) {
+        $response = $returnValue;
+    } else {
+        // unknown error occurred
+        $response['error'] = TRUE;
+        $response['message'] = "An error occurred. Please try again";
+    }
+    echoRespnse(200, $response);
 }
 
 // function objectToArray($d) {

@@ -110,6 +110,48 @@ class DbHandler {
         }
     }
 
+    public function googlePlus($email) {
+        // Check if user already exists in db
+        if (!$this->isEmailExists($email)) {
+
+            // Generating API key
+            $api_key = $this->generateApiKey();
+
+            if (!$this->isApikeyExists($api_key)) {
+
+                // insert query
+                $sql = "INSERT INTO users (`email_address`, `password`, `api_key`, `created_time`) VALUES (:email, '', :apikey, NOW())";
+                try {
+                    $stmt = $this->conn->prepare($sql);
+                    $stmt->bindParam("email", $email);
+                    //$stmt->bindParam("password", "");
+                    $stmt->bindParam("apikey", $api_key);
+                    $result = $stmt->execute();
+                } catch (PDOException $e) {
+                    echo '{"error":{"text":' . $e->getMessage() . '}}';
+                }
+
+                // Check for successful insertion
+                if ($result) {
+                    // User successfully inserted
+                    $sendEmail = new SendGridEmail();
+                    $sendEmail->sendRegistrationEmail($email);
+                    //$this->sendRegistrationEmail($email);
+                    return REGISTRATION_SUCCESSFUL;
+                } else {
+                    // Failed to create user
+                    return REGISTRATION_FAILED;
+                }
+            } else {
+                // User with same apikey already exists in the db
+                return REGISTRATION_FAILED;
+            }
+        } else {
+            // User with same email already exists in the db
+            return REGISTRATION_SUCCESSFUL;
+        }
+    }
+
     /**
      * Checking for duplicate user by email address
      * @param String $email email to check in db

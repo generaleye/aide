@@ -273,7 +273,6 @@ if(isset($_GET['logout'])){
     function initialize() {
         directionsDisplay = new google.maps.DirectionsRenderer();
 
-        //var chicago = new google.maps.LatLng(41.850033, -87.6500523);
 
         var a = ["<?php echo $lat?>","<?php echo $lon?>"];
         var myLatLng = new google.maps.LatLng(a[0], a[1]);
@@ -295,13 +294,13 @@ if(isset($_GET['logout'])){
 //        function calcRoute() {
 //            var start = document.getElementById('start').value;
 //            var end = document.getElementById('end').value;
-        var chicago = new google.maps.LatLng("<?php echo $pLat; ?>","<?php echo $pLon; ?>");
+        var provider = new google.maps.LatLng("<?php echo $pLat; ?>","<?php echo $pLon; ?>");
 
         //console.log("knk"+"<?php echo $pLat; ?>","<?php echo $pLon; ?>");
         var a = ["<?php echo $lat?>","<?php echo $lon?>"];
         var myLatLng = new google.maps.LatLng(a[0], a[1]);
             var request = {
-                origin: chicago,
+                origin: provider,
                 destination: myLatLng,
                 travelMode: google.maps.TravelMode.DRIVING
             };
